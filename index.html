@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1310">
+<title>Your Rewards Journey · Proactive Peptides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1a1310; --bg2:#120d0a;
+    --card:#251c17; --card2:#2d231d;
+    --accent:#c8682c; --accent-soft:#e8a072; --accent-bright:#f6932f;
+    --glow:rgba(246,147,47,0.55);
+    --text:#f5ebe0; --dim:#a08878; --faint:#6b5a4d;
+    --border:#3a2c23;
+    --bronze:#c8823c; --silver:#cdd2da; --gold:#f6b932; --plat:#9fe6e0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:radial-gradient(120% 90% at 50% -10%, #2a1d14 0%, var(--bg) 45%, var(--bg2) 100%);
+    color:var(--text); font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden; min-height:100vh;
+  }
+  .embers{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .ember{position:absolute;bottom:-10px;border-radius:50%;background:var(--accent-soft);
+    opacity:0;filter:blur(.4px);animation:rise linear infinite}
+  @keyframes rise{0%{transform:translateY(0) translateX(0);opacity:0}12%{opacity:.7}
+    85%{opacity:.5}100%{transform:translateY(-105vh) translateX(var(--drift,20px));opacity:0}}
+
+  .wrap{position:relative;z-index:2;max-width:560px;margin:0 auto;padding:22px 18px 60px}
+
+  .top{text-align:center;margin-bottom:6px}
+  .eyebrow{font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:var(--accent-soft);font-weight:700}
+  .brand{font-family:'Fraunces',serif;font-weight:800;font-size:clamp(26px,7vw,34px);
+    letter-spacing:-.5px;line-height:1.05;margin-top:7px;
+    background:linear-gradient(180deg,#fff,var(--accent-soft));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .tagline{font-style:italic;color:var(--dim);font-size:13.5px;margin-top:6px}
+
+  .live{display:inline-flex;align-items:center;gap:7px;margin-top:13px;
+    font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--dim)}
+  .live .dot{width:7px;height:7px;border-radius:50%;background:#7fc98a;position:relative}
+  .live .dot::after{content:"";position:absolute;inset:-3px;border-radius:50%;
+    border:2px solid rgba(127,201,138,.5);animation:ping 1.8s ease-out infinite}
+  @keyframes ping{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.8);opacity:0}}
+
+  .hero{margin-top:18px;background:linear-gradient(150deg,var(--card2),var(--card));
+    border:1px solid var(--border);border-radius:22px;padding:22px 22px 20px;
+    box-shadow:0 16px 44px rgba(0,0,0,.45);position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:-60%;right:-30%;width:320px;height:320px;
+    background:radial-gradient(circle,var(--glow),transparent 65%);opacity:.5;pointer-events:none}
+  .hero-name{font-family:'Fraunces',serif;font-weight:600;font-size:21px;line-height:1.1;position:relative}
+  .hero-tier{display:inline-flex;align-items:center;gap:7px;margin-top:9px;padding:5px 12px;
+    border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid;position:relative}
+  .hero-points{display:flex;align-items:baseline;gap:9px;margin-top:18px;position:relative}
+  .hp-num{font-family:'Fraunces',serif;font-weight:800;font-size:54px;line-height:.9;
+    color:var(--accent-bright);text-shadow:0 0 30px var(--glow)}
+  .hp-lbl{font-size:13px;color:var(--dim);font-weight:600;padding-bottom:6px}
+  .hero-sub{font-size:12.5px;color:var(--dim);margin-top:12px;line-height:1.5;position:relative}
+  .hero-sub b{color:var(--accent-soft);font-weight:700}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:18px;position:relative}
+  .stat{background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:13px;padding:11px 8px;text-align:center}
+  .stat .v{font-family:'Fraunces',serif;font-weight:700;font-size:19px;color:var(--text)}
+  .stat .v.flame{color:var(--accent-bright)}
+  .stat .l{font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-top:3px}
+
+  .climb-head{text-align:center;margin:34px 0 4px}
+  .climb-head .e{font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--faint);font-weight:700}
+  .climb-head .t{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin-top:5px}
+
+  .tier{position:relative;background:linear-gradient(150deg,var(--card2),var(--card));
+    border:1px solid var(--border);border-radius:18px;padding:15px 16px;
+    transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s,border-color .4s;overflow:hidden}
+  .tier .glowwrap{position:absolute;inset:0;opacity:0;transition:opacity .5s;pointer-events:none}
+  .tier.reached{border-color:rgba(246,147,47,.4)}
+  .tier.here{transform:scale(1.03);border-color:var(--accent);
+    box-shadow:0 12px 36px rgba(0,0,0,.5),0 0 0 1px var(--accent),0 0 32px var(--glow)}
+  .tier.here .glowwrap{opacity:1;background:radial-gradient(circle at 80% 20%,var(--glow),transparent 60%)}
+  .tier.locked{opacity:.55}
+  .tier-top{display:flex;justify-content:space-between;align-items:center;position:relative}
+  .tier-name{font-weight:700;font-size:15px;display:flex;align-items:center;gap:9px}
+  .tier-badge{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+    font-size:15px;flex:0 0 auto;box-shadow:0 3px 10px rgba(0,0,0,.4)}
+  .tier-req{font-size:11px;color:var(--dim);font-weight:600}
+  .tier-perk{font-size:11.5px;color:var(--dim);margin-top:8px;line-height:1.45;position:relative}
+  .tier-perk b{color:var(--accent-soft)}
+  .tier-state{position:absolute;top:14px;right:15px;font-size:9px;letter-spacing:.1em;
+    text-transform:uppercase;font-weight:800;padding:3px 8px;border-radius:100px}
+  .st-here{background:var(--accent);color:#1a1310}
+  .st-done{background:rgba(246,185,50,.18);color:var(--gold)}
+  .st-lock{background:rgba(255,255,255,.05);color:var(--faint)}
+
+  .nextbar{margin-top:14px}
+  .nextbar .nbtop{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:7px;font-weight:600}
+  .nextbar .track{height:9px;border-radius:100px;background:rgba(0,0,0,.35);overflow:hidden;position:relative}
+  .nextbar .fill{height:100%;border-radius:100px;width:0;
+    background:linear-gradient(90deg,var(--accent),var(--accent-bright));
+    box-shadow:0 0 14px var(--glow);transition:width 1.3s cubic-bezier(.22,1,.36,1)}
+  .nextbar .maxed{font-size:12px;color:var(--gold);font-weight:700;text-align:center;padding:4px 0}
+
+  .how{margin-top:34px;background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:18px;padding:20px 20px 8px}
+  .how h3{font-family:'Fraunces',serif;font-size:16px;font-weight:600;margin-bottom:4px}
+  .how .sub{font-size:12px;color:var(--dim);margin-bottom:16px}
+  .earn{display:flex;align-items:center;gap:13px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .earn:last-child{border-bottom:none}
+  .earn .chip{flex:0 0 auto;width:84px;text-align:center;font-weight:800;font-size:12.5px;
+    padding:7px 4px;border-radius:10px;font-family:'Fraunces',serif}
+  .earn .txt{font-size:12.5px;color:var(--text);line-height:1.4}
+  .earn .txt b{color:var(--accent-soft)}
+  .rules{margin-top:16px;font-size:11.5px;color:var(--dim);line-height:1.6;padding-bottom:14px}
+  .rules b{color:var(--accent-soft)}
+  .foot{text-align:center;margin-top:30px;font-size:11px;color:var(--faint);line-height:1.6}
+
+  .toast{position:fixed;left:50%;top:74px;transform:translateX(-50%) translateY(-20px);z-index:80;
+    background:var(--card2);border:1px solid var(--accent);border-left:3px solid var(--accent-bright);
+    border-radius:14px;padding:12px 18px;font-size:13px;font-weight:600;
+    box-shadow:0 14px 40px rgba(0,0,0,.5),0 0 26px var(--glow);
+    opacity:0;pointer-events:none;transition:opacity .5s,transform .5s cubic-bezier(.22,1,.36,1);
+    display:flex;align-items:center;gap:9px;max-width:calc(100vw - 32px)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  canvas.confetti{position:fixed;inset:0;z-index:70;pointer-events:none}
+
+  /* loading / error states */
+  .state{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;padding:30px}
+  .spinner{width:42px;height:42px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--accent-bright);animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .state h2{font-family:'Fraunces',serif;font-weight:600;font-size:22px}
+  .state p{font-size:13.5px;color:var(--dim);max-width:340px;line-height:1.6}
+  .hide{display:none!important}
+
+  @media(max-width:420px){.hp-num{font-size:46px}.stat .v{font-size:17px}}
+</style>
+</head>
+<body>
+<div class="embers" id="embers"></div>
+<canvas class="confetti" id="confetti"></canvas>
+<div class="toast" id="toast"><span id="toastIcon">🎉</span><span id="toastText"></span></div>
+
+<!-- LOADING -->
+<div class="state" id="loadingState">
+  <div class="spinner"></div>
+  <h2>Setting up your journey…</h2>
+  <p>Pulling your latest points. This only takes a moment.</p>
+</div>
+
+<!-- ERROR / NO REF -->
+<div class="state hide" id="errorState">
+  <h2 id="errTitle">We couldn't find that link</h2>
+  <p id="errMsg">Double-check the link, or reach out and we'll send a fresh one.</p>
+</div>
+
+<!-- MAIN -->
+<div class="wrap hide" id="main">
+  <div class="top">
+    <div class="eyebrow">Proactive Peptides · Rewards</div>
+    <div class="brand">Your Points Journey</div>
+    <div class="tagline">Every order climbs you higher. Watch it grow.</div>
+    <div class="live"><span class="dot"></span> Live · updates automatically</div>
+  </div>
+
+  <div class="hero" id="hero"></div>
+
+  <div class="climb-head">
+    <div class="e">The Climb</div>
+    <div class="t">Four tiers. No cap. Points never expire.</div>
+  </div>
+
+  <div id="tiers" style="margin-top:22px;display:flex;flex-direction:column;gap:14px"></div>
+
+  <div class="how">
+    <h3>How you earn</h3>
+    <div class="sub">It's your spend in a single calendar month — not per order. Two $60 orders same month = $120 = 10 points.</div>
+    <div class="earn"><div class="chip" style="background:rgba(200,130,60,.18);color:var(--bronze)">+10 pts</div><div class="txt">Spend <b>$100–299</b> in a month</div></div>
+    <div class="earn"><div class="chip" style="background:rgba(205,210,218,.16);color:var(--silver)">+25 pts</div><div class="txt">Spend <b>$300–499</b> in a month</div></div>
+    <div class="earn"><div class="chip" style="background:rgba(246,185,50,.18);color:var(--gold)">+40 pts</div><div class="txt">Spend <b>$500+</b> in a month</div></div>
+    <div class="rules">
+      <b>Points stack and never reset</b> — whatever you earn piles on top, no cap. Skip a month and your balance just sits there waiting.<br><br>
+      Your <b>streak</b> counts months in a row with an order. Buy every month and it climbs — miss one and it resets to zero.
+    </div>
+  </div>
+
+  <div class="foot">Proactive Peptides Research · Rewards are a thank-you for repeat business.<br>Points have no cash value and may carry an expiry on long-unused balances.</div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — paste your Apps Script /exec URL here after deploying
+   ============================================================ */
+const ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE";
+const POLL_MS = 25000;
+
+const TIERS = [
+  {name:"Bronze",   icon:"🥉", min:0,  color:"var(--bronze)", badgeBg:"rgba(200,130,60,.2)",  perk:"You're in. Every order from here starts banking points."},
+  {name:"Silver",   icon:"🥈", min:25, color:"var(--silver)", badgeBg:"rgba(205,210,218,.18)", perk:"Early-access drops & priority restock notice."},
+  {name:"Gold",     icon:"🥇", min:50, color:"var(--gold)",   badgeBg:"rgba(246,185,50,.2)",   perk:"Free shipping on your next order + a birthday bonus."},
+  {name:"Platinum", icon:"💎", min:100,color:"var(--plat)",   badgeBg:"rgba(159,230,224,.18)", perk:"Top tier. Best pricing, surprise gifts, first dibs on everything."},
+];
+
+const $ = id => document.getElementById(id);
+function getRef(){
+  const p = new URLSearchParams(location.search);
+  return (p.get('ref')||'').trim();
+}
+function tierIndexFor(bal){let idx=0;for(let i=0;i<TIERS.length;i++){if(bal>=TIERS[i].min)idx=i;}return idx;}
+function ptsThisMonth(s){if(s>=500)return 40;if(s>=300)return 25;if(s>=100)return 10;return 0;}
+
+let lastSnapshot = null;   // to detect changes between polls
+let firstPaint = true;
+
+function showError(title,msg){
+  $('loadingState').classList.add('hide');
+  $('main').classList.add('hide');
+  $('errorState').classList.remove('hide');
+  if(title)$('errTitle').textContent=title;
+  if(msg)$('errMsg').textContent=msg;
+}
+
+async function load(){
+  const ref = getRef();
+  if(!ref){ showError("No link detected","This page needs a personal link. Reach out and we'll send yours."); return; }
+  if(ENDPOINT.indexOf('PASTE_')===0){ showError("Almost there","The rewards feed isn't connected yet."); return; }
+
+  try{
+    const url = ENDPOINT + (ENDPOINT.indexOf('?')>=0?'&':'?') + 'ref=' + encodeURIComponent(ref) + '&t=' + Date.now();
+    const res = await fetch(url, {method:'GET'});
+    const data = await res.json();
+
+    if(!data.ok || data.mode!=='one' || !data.client){
+      // row not published yet → keep the tidy loading state, retry on next poll
+      if(firstPaint){ /* stay on loading */ }
+      return;
+    }
+    paint(data.client);
+  }catch(err){
+    if(firstPaint){ /* keep loading state, try again next poll */ }
+  }
+}
+
+function paint(c){
+  // normalise
+  c.total = +c.total||0; c.orders=+c.orders||0;
+  c.balance = +c.balance||0; c.streak=+c.streak||0; c.monthSpend=+c.monthSpend||0;
+  const thisMonth = c.ptsThisMonth!=null ? +c.ptsThisMonth : ptsThisMonth(c.monthSpend);
+
+  const snap = JSON.stringify([c.name,c.balance,c.streak,c.monthSpend,c.orders,c.total]);
+  const changed = snap!==lastSnapshot;
+  lastSnapshot = snap;
+
+  // reveal main on first successful paint
+  if(firstPaint){
+    $('loadingState').classList.add('hide');
+    $('errorState').classList.add('hide');
+    $('main').classList.remove('hide');
+  }
+
+  const ti=tierIndexFor(c.balance);
+  const tier=TIERS[ti], next=TIERS[ti+1];
+
+  let tierPill=`<span class="hero-tier" style="color:${tier.color};border-color:${tier.color}33;background:${tier.badgeBg}">${tier.icon} ${tier.name} member</span>`;
+  let sub;
+  if(next){
+    const need=next.min-c.balance;
+    sub=`<b>${need} more point${need===1?'':'s'}</b> to reach ${next.name}. ${c.monthSpend>0?`You've earned <b>${thisMonth} pts</b> this month so far.`:`No order yet this month.`}`;
+  }else{
+    sub=`You're at the summit — <b>${tier.name}</b>. ${c.monthSpend>0?`<b>+${thisMonth} pts</b> banked this month.`:''}`;
+  }
+
+  $('hero').innerHTML=`
+    <div class="hero-name">${esc(c.name)}</div>
+    ${tierPill}
+    <div class="hero-points"><span class="hp-num" id="hpNum">0</span><span class="hp-lbl">points banked</span></div>
+    <div class="hero-sub">${sub}</div>
+    <div class="stats">
+      <div class="stat"><div class="v flame">${c.streak>0?c.streak+'🔥':'—'}</div><div class="l">Month streak</div></div>
+      <div class="stat"><div class="v">${c.orders}</div><div class="l">Orders</div></div>
+      <div class="stat"><div class="v">$${c.total.toLocaleString()}</div><div class="l">Lifetime spend</div></div>
+    </div>`;
+
+  // count up only when it changed (or first load)
+  const numEl=$('hpNum');
+  if((firstPaint||changed) && c.balance>0){
+    let start=null,dur=1100;
+    (function step(ts){if(!start)start=ts;const p=Math.min((ts-start)/dur,1);
+      const e=1-Math.pow(1-p,3);numEl.textContent=Math.round(e*c.balance);
+      if(p<1)requestAnimationFrame(step);else numEl.textContent=c.balance;})(performance.now());
+  }else{ numEl.textContent=c.balance; }
+
+  // tiers
+  const wrap=$('tiers'); wrap.innerHTML='';
+  TIERS.forEach((t,idx)=>{
+    const reached=c.balance>=t.min, here=idx===ti;
+    const div=document.createElement('div');
+    div.className='tier '+(here?'here':reached?'reached':'locked');
+    const state=here?`<span class="tier-state st-here">You are here</span>`
+      :reached?`<span class="tier-state st-done">Unlocked</span>`
+      :`<span class="tier-state st-lock">Locked</span>`;
+    let bar='';
+    if(here){
+      if(next){
+        const span=next.min-t.min,into=c.balance-t.min;
+        const pct=Math.max(4,Math.min(100,Math.round(into/span*100)));
+        bar=`<div class="nextbar"><div class="nbtop"><span>${c.balance} pts</span><span>${next.name} at ${next.min}</span></div>
+          <div class="track"><div class="fill" data-pct="${pct}"></div></div></div>`;
+      }else{
+        bar=`<div class="nextbar"><div class="maxed">✦ Summit reached — top tier unlocked ✦</div></div>`;
+      }
+    }
+    div.innerHTML=`<div class="glowwrap"></div>${state}
+      <div class="tier-top"><div class="tier-name"><span class="tier-badge" style="background:${t.badgeBg}">${t.icon}</span>${t.name}</div></div>
+      <div class="tier-req">${t.min===0?'Starting tier':t.min+' points'}</div>
+      <div class="tier-perk">${t.perk}</div>${bar}`;
+    wrap.appendChild(div);
+  });
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.querySelectorAll('.fill').forEach(f=>f.style.width=f.dataset.pct+'%');
+  }));
+
+  // celebrate: first load at Silver+, OR a change that crossed into a new tier
+  if(firstPaint){
+    if(ti>=2){celebrate();toast(`🎉 You're ${tier.name}!`);}
+    else if(ti===1){toast(`🥈 Silver unlocked`);}
+  }else if(changed){
+    const prevTi = paint._prevTi==null?ti:paint._prevTi;
+    if(ti>prevTi){celebrate();toast(`🎉 You climbed to ${tier.name}!`);}
+    else{toast(`✦ Your journey just updated`);}
+  }
+  paint._prevTi=ti;
+  firstPaint=false;
+}
+
+function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+
+/* toast */
+let toTimer;
+function toast(msg){$('toastText').textContent=msg;$('toast').classList.add('show');
+  clearTimeout(toTimer);toTimer=setTimeout(()=>$('toast').classList.remove('show'),2600);}
+
+/* confetti */
+const cv=$('confetti'),cx=cv.getContext('2d');let bits=[],raf=null;
+function sz(){cv.width=innerWidth;cv.height=innerHeight;}sz();addEventListener('resize',sz);
+const COLORS=['#c8682c','#f6932f','#f6b932','#e8a072','#9fe6e0','#cdd2da'];
+function celebrate(){for(let i=0;i<120;i++){bits.push({x:innerWidth/2+(Math.random()-.5)*120,y:innerHeight*0.3,
+  vx:(Math.random()-.5)*9,vy:Math.random()*-11-3,g:0.28+Math.random()*0.12,
+  w:5+Math.random()*5,h:7+Math.random()*6,rot:Math.random()*6.28,vr:(Math.random()-.5)*0.3,
+  c:COLORS[i%COLORS.length],life:0});}if(!raf)loop();}
+function loop(){cx.clearRect(0,0,cv.width,cv.height);
+  for(let i=bits.length-1;i>=0;i--){const b=bits[i];b.vy+=b.g;b.x+=b.vx;b.y+=b.vy;b.rot+=b.vr;b.life++;
+    cx.save();cx.translate(b.x,b.y);cx.rotate(b.rot);cx.globalAlpha=Math.max(0,1-b.life/150);
+    cx.fillStyle=b.c;cx.fillRect(-b.w/2,-b.h/2,b.w,b.h);cx.restore();
+    if(b.y>cv.height+30||b.life>160)bits.splice(i,1);}
+  if(bits.length)raf=requestAnimationFrame(loop);else{raf=null;cx.clearRect(0,0,cv.width,cv.height);}}
+
+/* embers */
+const ewrap=$('embers');
+for(let i=0;i<26;i++){const e=document.createElement('div');e.className='ember';
+  const s=2+Math.random()*3;e.style.left=Math.random()*100+'%';e.style.width=e.style.height=s+'px';
+  e.style.setProperty('--drift',(Math.random()*80-40)+'px');
+  e.style.animationDuration=(9+Math.random()*11)+'s';e.style.animationDelay=(-Math.random()*18)+'s';
+  e.style.opacity=String(0.3+Math.random()*0.4);ewrap.appendChild(e);}
+
+/* boot + poll */
+load();
+setInterval(load, POLL_MS);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) load(); });
+</script>
+</body>
+</html>
