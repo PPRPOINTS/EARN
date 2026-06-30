@@ -170,8 +170,8 @@
 
 
   /* referrals */
-  .refs{margin-top:24px;border-radius:18px;padding:20px 20px;position:relative;overflow:hidden;
-    background:linear-gradient(155deg,#241b13,#1a130d);border:1px solid var(--line2);
+  .refs{margin-top:30px;border-radius:18px;padding:22px 20px;position:relative;overflow:hidden;
+    background:#1f160f;border:1px solid var(--line);
     box-shadow:0 14px 40px rgba(0,0,0,.4)}
   .refs::before{content:"";position:absolute;top:-40%;left:-20%;width:240px;height:240px;
     background:radial-gradient(circle,var(--glow),transparent 64%);opacity:.3;pointer-events:none}
@@ -188,6 +188,9 @@
   .refs-empty{margin-top:14px;font-size:12.5px;color:var(--dim);line-height:1.5;position:relative;
     padding:12px 14px;border-radius:12px;background:rgba(0,0,0,.2);border:1px solid var(--line)}
   .refs-empty b{color:var(--gold)}
+  .refs-divider{position:relative;text-align:center;margin:2px 0 20px}
+  .refs-divider::before{content:"";position:absolute;top:50%;left:0;right:0;height:1px;background:var(--line)}
+  .refs-divider span{position:relative;background:#1f160f;padding:0 14px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:800;color:var(--faint)}
   .refs-earned{margin-top:14px;position:relative;font-size:13px;line-height:1.5;color:var(--cream);
     padding:13px 15px;border-radius:12px;background:rgba(156,207,143,.1);border:1px solid rgba(156,207,143,.35)}
   .refs-earned b{color:var(--green)}
@@ -256,7 +259,7 @@
   </div>
 
   <h1 class="hh">Your store credit</h1>
-  <p class="sub">Every month you spend, you bank credit. It stacks, it never expires, and you spend it like cash on any future order.</p>
+  <p class="sub">Two ways to earn: <b style="color:var(--gold)">store credit</b> from your own orders, and <b style="color:var(--gold)">referral rewards</b> for friends you send our way. Here is where both stand.</p>
   <div class="live"><span class="dot"></span> Live · updates automatically</div>
 
   <div class="hero" id="hero"></div>
@@ -394,7 +397,7 @@ function paint(c){
     <div class="hname">${esc(c.name)}</div>
     <span class="htier">${mile.name}</span>
     <div class="credit">
-      <div class="lbl">Store credit banked</div>
+      <div class="lbl">Store credit · from your spending</div>
       <div class="amt"><span class="dollar">$</span><span id="amtNum">0</span></div>
       <div class="pts"><b>${balance}</b> point${balance===1?'':'s'} · 1 point = $1 credit</div>
     </div>
@@ -465,89 +468,68 @@ function renderRefs(c){
   const names = Array.isArray(c.referralNames)?c.referralNames:[];
   const isNat = String(c.name||'').trim().toLowerCase()==='nat';
 
-  // standard ladder rungs
-  const LADDER = [
-    {n:2, label:"$30 credit",        short:"$30"},
-    {n:3, label:"$50 credit",        short:"$50"},
-    {n:4, label:"a free vial (up to $140)", short:"Free vial"},
-  ];
-
-  // what have they earned right now (top rung reached)
-  let earned=null;
-  for(let i=0;i<LADDER.length;i++){ if(count>=LADDER[i].n) earned=LADDER[i]; }
-
-  // next rung to aim for
-  let next=null;
-  for(let i=0;i<LADDER.length;i++){ if(count<LADDER[i].n){ next=LADDER[i]; break; } }
-
   const chips = names.length
     ? `<div class="refs-list">${names.map(n=>`<span class="refchip">${esc(n)}</span>`).join('')}</div>`
     : '';
 
-  // headline block
-  let head = `
+  const head = `
+    <div class="refs-divider"><span>A separate reward</span></div>
     <div class="refs-top">
       <div class="refs-num">${count}</div>
       <div class="refs-info">
-        <h3>${count===0?'Referrals' : `You've referred ${count} ${count===1?'friend':'friends'}`}</h3>
-        <p>${count===0
-            ? "Know someone who'd love this? Send them your way."
-            : "Friends who placed an order. Thank you — it means everything."}</p>
+        <h3>${count===0?'Refer a friend' : `You've referred ${count} ${count===1?'friend':'friends'}`}</h3>
+        <p>This is separate from your store credit above. It's a reward for friends you send our way who place an order.</p>
       </div>
     </div>
     ${chips}`;
 
-  // earned / next reward line
-  let rewardBlock='';
-  if(earned){
-    rewardBlock += `<div class="refs-earned">🎁 You've earned <b>${earned.label}</b> — message us to redeem it on your next order.</div>`;
-  }
-  if(next){
-    const need=next.n-count;
-    rewardBlock += `<div class="refs-next">${count===0?'Refer':'Refer'} <b>${need} more</b> ${need===1?'friend':'friends'} who order${need===1?'s':''} to unlock <b>${next.label}</b>.</div>`;
-  } else if(earned){
-    rewardBlock += `<div class="refs-next">You've reached the top of the referral rewards — nice work.</div>`;
-  }
+  let body;
 
-  // the visible ladder
-  const ladderRows = LADDER.map(r=>{
-    const hit = count>=r.n;
-    return `<div class="rung ${hit?'hit':''}">
-      <span class="rung-n">${r.n}</span>
-      <span class="rung-lbl">${r.n} friends → <b>${r.label}</b></span>
-      <span class="rung-state">${hit?'✓':''}</span>
-    </div>`;
-  }).join('');
-
-  // Nat's special
-  let natBlock='';
   if(isNat){
-    const natHit = count>=3;
-    natBlock = `
-      <div class="nat">
-        <div class="nat-h">✦ Your special deal</div>
-        <div class="nat-body">
-          <div class="rung ${natHit?'hit':''}">
-            <span class="rung-n">3</span>
-            <span class="rung-lbl">3 friends → <b>a free vial, your choice</b></span>
-            <span class="rung-state">${natHit?'✓':''}</span>
-          </div>
-          ${natHit
-            ? `<div class="refs-earned" style="margin-top:10px">🎁 You've earned <b>a free vial of your choice</b> — message us to pick it.</div>`
-            : `<div class="refs-next" style="margin-top:10px">Refer <b>${3-count} more</b> to claim a free vial of your choice.</div>`}
+    const hit = count>=3;
+    body = `
+      <div class="ladder">
+        <div class="ladder-h">Your referral reward</div>
+        <div class="rung ${hit?'hit':''}">
+          <span class="rung-n">3</span>
+          <span class="rung-lbl">Refer <b>3 friends</b> who order → <b>1 free vial, your choice</b></span>
+          <span class="rung-state">${hit?'✓':''}</span>
         </div>
+      </div>
+      ${hit
+        ? `<div class="refs-earned">🎁 You've earned <b>a free vial of your choice</b> — message us to pick it.</div>`
+        : `<div class="refs-next">Refer <b>${3-count} more</b> ${3-count===1?'friend':'friends'} who order to get a <b>free vial of your choice</b>.</div>`}`;
+  } else {
+    const LADDER = [
+      {n:2, label:"$30 store credit"},
+      {n:3, label:"$50 store credit"},
+      {n:4, label:"a free vial (up to $140)"},
+    ];
+    let earned=null; for(let i=0;i<LADDER.length;i++){ if(count>=LADDER[i].n) earned=LADDER[i]; }
+    let next=null;   for(let i=0;i<LADDER.length;i++){ if(count<LADDER[i].n){ next=LADDER[i]; break; } }
+
+    const rows = LADDER.map(r=>{
+      const hit=count>=r.n;
+      return `<div class="rung ${hit?'hit':''}">
+        <span class="rung-n">${r.n}</span>
+        <span class="rung-lbl">Refer <b>${r.n} friends</b> who order → <b>${r.label}</b></span>
+        <span class="rung-state">${hit?'✓':''}</span>
       </div>`;
+    }).join('');
+
+    let reward='';
+    if(earned) reward += `<div class="refs-earned">🎁 You've earned <b>${earned.label}</b> — message us to redeem it on your next order.</div>`;
+    if(next){
+      const need=next.n-count;
+      reward += `<div class="refs-next">Refer <b>${need} more</b> ${need===1?'friend':'friends'} who order${need===1?'s':''} to unlock <b>${next.label}</b>.</div>`;
+    } else if(earned){
+      reward += `<div class="refs-next">You've reached the top referral reward — nice work.</div>`;
+    }
+
+    body = `<div class="ladder"><div class="ladder-h">Referral rewards</div>${rows}</div>${reward}`;
   }
 
-  const inner = `${head}
-    ${natBlock}
-    <div class="ladder">
-      <div class="ladder-h">Referral rewards</div>
-      ${ladderRows}
-    </div>
-    ${rewardBlock}`;
-
-  document.getElementById('refsWrap').innerHTML = `<div class="refs">${inner}</div>`;
+  document.getElementById('refsWrap').innerHTML = `<div class="refs">${head}${body}</div>`;
 }
 
 function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
