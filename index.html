@@ -162,6 +162,27 @@
   .foot{text-align:center;margin-top:32px;font-size:11px;color:var(--faint);line-height:1.7}
   .foot .fl{font-size:11px;letter-spacing:.26em;color:var(--gold);text-transform:uppercase;font-weight:700}
 
+
+  /* referrals */
+  .refs{margin-top:24px;border-radius:18px;padding:20px 20px;position:relative;overflow:hidden;
+    background:linear-gradient(155deg,#241b13,#1a130d);border:1px solid var(--line2);
+    box-shadow:0 14px 40px rgba(0,0,0,.4)}
+  .refs::before{content:"";position:absolute;top:-40%;left:-20%;width:240px;height:240px;
+    background:radial-gradient(circle,var(--glow),transparent 64%);opacity:.3;pointer-events:none}
+  .refs-top{display:flex;align-items:center;gap:15px;position:relative}
+  .refs-num{flex:0 0 auto;width:62px;height:62px;border-radius:16px;display:grid;place-items:center;
+    font-size:30px;font-weight:800;color:var(--gold-bright);background:rgba(231,193,120,.12);
+    border:1px solid var(--line2);text-shadow:0 0 20px var(--glow)}
+  .refs-info{flex:1;min-width:0}
+  .refs-info h3{font-size:16px;font-weight:700;color:var(--cream);line-height:1.2}
+  .refs-info p{font-size:12.5px;color:var(--dim);margin-top:4px;line-height:1.45}
+  .refs-list{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;position:relative}
+  .refchip{font-size:12px;font-weight:600;color:var(--gold-bright);padding:6px 12px;border-radius:100px;
+    background:rgba(231,193,120,.1);border:1px solid var(--line)}
+  .refs-empty{margin-top:14px;font-size:12.5px;color:var(--dim);line-height:1.5;position:relative;
+    padding:12px 14px;border-radius:12px;background:rgba(0,0,0,.2);border:1px solid var(--line)}
+  .refs-empty b{color:var(--gold)}
+
   .toast{position:fixed;left:50%;top:24px;transform:translateX(-50%) translateY(-24px);z-index:90;
     background:linear-gradient(160deg,#2a2015,#1b140e);border:1px solid var(--gold);
     border-radius:12px;padding:13px 22px;font-size:14px;font-weight:700;color:var(--gold-bright);
@@ -219,6 +240,8 @@
 
   <div id="nextWrap"></div>
   <div class="miles" id="miles"></div>
+
+  <div id="refsWrap"></div>
 
   <div class="how">
     <h3>How your credit works</h3>
@@ -383,6 +406,9 @@ function paint(c){
       ${st}</div>`;
     wrap.appendChild(div);
   });
+  // referrals panel
+  renderRefs(c);
+
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     document.querySelectorAll('.ttn-fill').forEach(f=>f.style.width=f.dataset.pct+'%');
   }));
@@ -403,6 +429,35 @@ function bandSteps(spend){
     const cls = i===cur?'on':(i<cur?'passed':'');
     return `<div class="mstep ${cls}"><span class="v">${b.v}</span>${b.l}</div>`;
   }).join('')+`</div>`;
+}
+
+function renderRefs(c){
+  const count = +c.referralCount||0;
+  const names = Array.isArray(c.referralNames)?c.referralNames:[];
+  let inner;
+  if(count>0){
+    const chips = names.map(n=>`<span class="refchip">${esc(n)}</span>`).join('');
+    inner = `
+      <div class="refs-top">
+        <div class="refs-num">${count}</div>
+        <div class="refs-info">
+          <h3>You've referred ${count} ${count===1?'person':'people'} to us</h3>
+          <p>Thank you — word of mouth means everything to us.</p>
+        </div>
+      </div>
+      ${names.length?`<div class="refs-list">${chips}</div>`:''}`;
+  } else {
+    inner = `
+      <div class="refs-top">
+        <div class="refs-num">0</div>
+        <div class="refs-info">
+          <h3>Referrals</h3>
+          <p>Know someone who'd love this? Send them our way.</p>
+        </div>
+      </div>
+      <div class="refs-empty">When someone you refer becomes a customer, they'll show up here.</div>`;
+  }
+  document.getElementById('refsWrap').innerHTML = `<div class="refs">${inner}</div>`;
 }
 
 function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
