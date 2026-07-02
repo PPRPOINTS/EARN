@@ -333,13 +333,15 @@ async function load(count){
 }
 
 function paint(c){
-  const balance=+c.balance||0;
+  const balance=+c.balance||0;                 // banked / earned — drives tiers & progress
+  const used=+c.creditUsed||0;
+  const available=(c.creditAvailable!=null)?Math.max(0,+c.creditAvailable||0):Math.max(0,balance-used); // spendable
   const monthSpend=+c.monthSpend||0;
   const streak=+c.streak||0;
   const earned=earnFor(monthSpend);
   const locked = earned>0;
 
-  const snap=JSON.stringify([c.name,balance,streak,monthSpend]);
+  const snap=JSON.stringify([c.name,balance,available,used,streak,monthSpend]);
   const changed=snap!==lastSnap; lastSnap=snap;
   if(firstPaint){$('loadingState').classList.add('hide');$('errorState').classList.add('hide');$('main').classList.remove('hide');}
 
@@ -397,9 +399,9 @@ function paint(c){
     <div class="hname">${esc(c.name)}</div>
     <span class="htier">${mile.name}</span>
     <div class="credit">
-      <div class="lbl">Store credit · from your spending</div>
+      <div class="lbl">Store credit · available to spend</div>
       <div class="amt"><span class="dollar">$</span><span id="amtNum">0</span></div>
-      <div class="pts"><b>${balance}</b> point${balance===1?'':'s'} · 1 point = $1 credit</div>
+      <div class="pts">${used>0?`<b>$${balance}</b> banked · <b>$${used}</b> spent`:`<b>${available}</b> point${available===1?'':'s'} · 1 point = $1 credit`}</div>
     </div>
     ${monthBlock}
     <div class="heroline">${line}</div>
@@ -407,11 +409,11 @@ function paint(c){
   `;
 
   const n=$('amtNum');
-  if((firstPaint||changed)&&balance>0){
+  if((firstPaint||changed)&&available>0){
     let s=null,dur=1100;
     (function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/dur,1);const e=1-Math.pow(1-p,3);
-      n.textContent=Math.round(e*balance);if(p<1)requestAnimationFrame(step);else n.textContent=balance;})(performance.now());
-  } else n.textContent=balance;
+      n.textContent=Math.round(e*available);if(p<1)requestAnimationFrame(step);else n.textContent=available;})(performance.now());
+  } else n.textContent=available;
 
   if(next){
     const span=next.min-mile.min, into=balance-mile.min;
