@@ -497,7 +497,9 @@ function renderRefs(c){
         </div>
       </div>
       ${hit
-        ? `<div class="refs-earned">🎁 You've earned <b>a free vial of your choice</b> — message us to pick it.</div>`
+        ? (c.freeVialUsed
+            ? `<div class="refs-earned">✅ Your free vial has been <b>redeemed</b> — enjoy! Refer more friends any time.</div>`
+            : `<div class="refs-earned">🎁 You've earned <b>a free vial of your choice</b> — message us to pick it.</div>`)
         : `<div class="refs-next">Refer <b>${3-count} more</b> ${3-count===1?'friend':'friends'} who order to get a <b>free vial of your choice</b>.</div>`}`;
   } else {
     const LADDER = [
@@ -518,7 +520,13 @@ function renderRefs(c){
     }).join('');
 
     let reward='';
-    if(earned) reward += `<div class="refs-earned">🎁 You've earned <b>${earned.label}</b> — message us to redeem it on your next order.</div>`;
+    if(earned){
+      if(earned.n>=4 && c.freeVialUsed){
+        reward += `<div class="refs-earned">✅ Your free vial has been <b>redeemed</b> — enjoy!</div>`;
+      } else {
+        reward += `<div class="refs-earned">🎁 You've earned <b>${earned.label}</b> — message us to redeem it on your next order.</div>`;
+      }
+    }
     if(next){
       const need=next.n-count;
       reward += `<div class="refs-next">Refer <b>${need} more</b> ${need===1?'friend':'friends'} who order${need===1?'s':''} to unlock <b>${next.label}</b>.</div>`;
