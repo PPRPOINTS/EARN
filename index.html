@@ -390,7 +390,7 @@ function paint(c){
   let line;
   if(next){
     const need=next.min-balance;
-    line=`You're <b>$${need}</b> of banked credit away from ${next.name}.`;
+    line=`Earn <b>$${need}</b> more in credit to reach ${next.name}.`;
   } else {
     line=`You've reached the top tier.`;
   }
@@ -401,7 +401,8 @@ function paint(c){
     <div class="credit">
       <div class="lbl">Store credit · available to spend</div>
       <div class="amt"><span class="dollar">$</span><span id="amtNum">0</span></div>
-      <div class="pts">${used>0?`<b>$${balance}</b> banked · <b>$${used}</b> spent`:`<b>${available}</b> point${available===1?'':'s'} · 1 point = $1 credit`}</div>
+      <div class="pts">${used>0?`<b>$${balance}</b> earned all-time · <b>$${used}</b> spent`:`<b>${available}</b> point${available===1?'':'s'} · 1 point = $1 credit`}</div>
+      ${used>0?`<div style="font-size:11px;color:var(--dim);margin-top:8px;line-height:1.45">Your tier's based on the $${balance} you've earned all-time — spending your credit never drops it.</div>`:''}
     </div>
     ${monthBlock}
     <div class="heroline">${line}</div>
@@ -419,9 +420,9 @@ function paint(c){
     const span=next.min-mile.min, into=balance-mile.min;
     const pct=Math.max(3,Math.min(100,Math.round(into/span*100)));
     $('nextWrap').innerHTML=`<div class="track-to-next">
-      <div class="ttn-top"><span><b>$${balance}</b> banked</span><span>${next.name} at <b>$${next.min}</b></span></div>
+      <div class="ttn-top"><span><b>$${balance}</b> earned</span><span>${next.name} at <b>$${next.min}</b></span></div>
       <div class="ttn-track"><div class="ttn-fill" data-pct="${pct}"></div></div>
-      <div class="ttn-note">$${next.min-balance} more banked to reach ${next.name}</div>
+      <div class="ttn-note">$${next.min-balance} more to reach ${next.name}</div>
     </div>`;
   } else {
     $('nextWrap').innerHTML=`<div class="track-to-next"><div class="ttn-note" style="margin:0">You've reached ${mile.name} — the top.</div></div>`;
@@ -436,7 +437,7 @@ function paint(c){
     div.innerHTML=`<div class="mtop">
       <div class="mbadge">${idx+1}</div>
       <div class="minfo"><div class="mname">${m.name}</div>
-        <div class="mamt">${m.min===0?'Starting tier':'$'+m.min+' credit banked'}</div></div>
+        <div class="mamt">${m.min===0?'Starting tier':'$'+m.min+' credit earned'}</div></div>
       ${st}</div>`;
     wrap.appendChild(div);
   });
@@ -447,7 +448,7 @@ function paint(c){
     document.querySelectorAll('.ttn-fill').forEach(f=>f.style.width=f.dataset.pct+'%');
   }));
 
-  if(firstPaint){ if(mi>=1){fireworks(mi); toast(`You're at ${mile.name} — $${balance} banked`);} }
+  if(firstPaint){ if(mi>=1){fireworks(mi); toast(`You're at ${mile.name} — $${balance} earned`);} }
   else if(changed){
     if(prevMi!=null && mi>prevMi){fireworks(mi); toast(`New tier reached — ${mile.name}`);}
     else toast(`Your balance just updated`);
