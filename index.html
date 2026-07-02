@@ -320,12 +320,12 @@ function showError(t,m){
   $('errorState').classList.remove('hide');
   if(t)$('errTitle').textContent=t; if(m)$('errMsg').textContent=m;
 }
-async function load(){
+async function load(count){
   const ref=getRef();
   if(!ref){showError("No link detected","This page needs your personal link. Reach out and we'll send yours.");return;}
   if(ENDPOINT.indexOf('__ENDPOINT')===0){showError("Almost there","The rewards feed isn't connected yet.");return;}
   try{
-    const u=ENDPOINT+(ENDPOINT.indexOf('?')>=0?'&':'?')+'ref='+encodeURIComponent(ref)+'&t='+Date.now();
+    const u=ENDPOINT+(ENDPOINT.indexOf('?')>=0?'&':'?')+'ref='+encodeURIComponent(ref)+'&t='+Date.now()+(count?'&count=1':'');
     const r=await fetch(u);const d=await r.json();
     if(!d.ok||d.mode!=='one'||!d.client)return;
     paint(d.client);
@@ -597,9 +597,9 @@ for(let i=0;i<22;i++){const e=document.createElement('div');e.className='ember';
   e.style.animationDuration=(10+Math.random()*12)+'s';e.style.animationDelay=(-Math.random()*20)+'s';
   e.style.opacity=String(0.22+Math.random()*0.38);ew.appendChild(e);}
 
-load();
-setInterval(load,POLL_MS);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
+load(true);
+setInterval(()=>load(false),POLL_MS);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)load(false);});
 </script>
 </body>
 </html>
