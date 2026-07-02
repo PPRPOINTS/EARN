@@ -264,15 +264,6 @@
 
   <div class="hero" id="hero"></div>
 
-  <div class="mhead">
-    <div class="e">Tiers</div>
-    <div class="t">The more credit you bank, the higher you climb</div>
-    <div class="d">Five tiers. Hit one and we'll celebrate it with you.</div>
-  </div>
-
-  <div id="nextWrap"></div>
-  <div class="miles" id="miles"></div>
-
   <div id="refsWrap"></div>
 
   <div class="how">
@@ -299,21 +290,11 @@
 const ENDPOINT = "https://script.google.com/macros/s/AKfycby6GS7W7o7sFKceSUAxrYW6QHKvDyj8D9lljgDYtN3j_cqAEmg6gSj-kh0Oj5xrf_Dr7A/exec";
 const POLL_MS = 25000;
 
-/* plain numbered tiers, credit-balance based */
-const MILES = [
-  {name:"Tier 1", min:0},
-  {name:"Tier 2", min:25},
-  {name:"Tier 3", min:50},
-  {name:"Tier 4", min:100},
-  {name:"Tier 5", min:200},
-];
-
 const $ = id => document.getElementById(id);
 function getRef(){return (new URLSearchParams(location.search).get('ref')||'').trim();}
-function mileIndex(c){let i=0;for(let k=0;k<MILES.length;k++){if(c>=MILES[k].min)i=k;}return i;}
 function earnFor(s){return s>=500?40:s>=300?25:s>=100?10:0;}
 
-let firstPaint=true, lastSnap=null, prevMi=null;
+let firstPaint=true, lastSnap=null;
 
 function showError(t,m){
   $('loadingState').classList.add('hide');$('main').classList.add('hide');
@@ -344,8 +325,6 @@ function paint(c){
   const snap=JSON.stringify([c.name,balance,available,used,streak,monthSpend]);
   const changed=snap!==lastSnap; lastSnap=snap;
   if(firstPaint){$('loadingState').classList.add('hide');$('errorState').classList.add('hide');$('main').classList.remove('hide');}
-
-  const mi=mileIndex(balance), mile=MILES[mi], next=MILES[mi+1];
 
   /* THIS MONTH block — crystal clear about locking in credit */
   let monthBlock;
@@ -387,25 +366,15 @@ function paint(c){
       </div>`;
   }
 
-  let line;
-  if(next){
-    const need=next.min-balance;
-    line=`Earn <b>$${need}</b> more in credit to reach ${next.name}.`;
-  } else {
-    line=`You've reached the top tier.`;
-  }
-
   $('hero').innerHTML=`
     <div class="hname">${esc(c.name)}</div>
-    <span class="htier">${mile.name}</span>
     <div class="credit">
       <div class="lbl">Store credit · available to spend</div>
       <div class="amt"><span class="dollar">$</span><span id="amtNum">0</span></div>
       <div class="pts">${used>0?`<b>$${balance}</b> earned all-time · <b>$${used}</b> spent`:`<b>${available}</b> point${available===1?'':'s'} · 1 point = $1 credit`}</div>
-      ${used>0?`<div style="font-size:11px;color:var(--dim);margin-top:8px;line-height:1.45">Your tier's based on the $${balance} you've earned all-time — spending your credit never drops it.</div>`:''}
+      ${used>0?`<div style="font-size:11px;color:var(--dim);margin-top:8px;line-height:1.45">That $${balance} is everything you've earned. Spending your credit doesn't change it.</div>`:''}
     </div>
     ${monthBlock}
-    <div class="heroline">${line}</div>
     ${streak>0?`<div class="streakwrap"><span class="streakpill">🔥 <b>${streak}</b>-month streak</span></div>`:''}
   `;
 
@@ -416,44 +385,11 @@ function paint(c){
       n.textContent=Math.round(e*available);if(p<1)requestAnimationFrame(step);else n.textContent=available;})(performance.now());
   } else n.textContent=available;
 
-  if(next){
-    const span=next.min-mile.min, into=balance-mile.min;
-    const pct=Math.max(3,Math.min(100,Math.round(into/span*100)));
-    $('nextWrap').innerHTML=`<div class="track-to-next">
-      <div class="ttn-top"><span><b>$${balance}</b> earned</span><span>${next.name} at <b>$${next.min}</b></span></div>
-      <div class="ttn-track"><div class="ttn-fill" data-pct="${pct}"></div></div>
-      <div class="ttn-note">$${next.min-balance} more to reach ${next.name}</div>
-    </div>`;
-  } else {
-    $('nextWrap').innerHTML=`<div class="track-to-next"><div class="ttn-note" style="margin:0">You've reached ${mile.name} — the top.</div></div>`;
-  }
-
-  const wrap=$('miles');wrap.innerHTML='';
-  MILES.forEach((m,idx)=>{
-    const reached=balance>=m.min, here=idx===mi;
-    const div=document.createElement('div');
-    div.className='mile '+(here?'here':reached?'reached':'locked');
-    const st=here?`<span class="mstate s-here">You're here</span>`:reached?`<span class="mstate s-done">Reached</span>`:`<span class="mstate s-lock">Locked</span>`;
-    div.innerHTML=`<div class="mtop">
-      <div class="mbadge">${idx+1}</div>
-      <div class="minfo"><div class="mname">${m.name}</div>
-        <div class="mamt">${m.min===0?'Starting tier':'$'+m.min+' credit earned'}</div></div>
-      ${st}</div>`;
-    wrap.appendChild(div);
-  });
   // referrals panel
   renderRefs(c);
 
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    document.querySelectorAll('.ttn-fill').forEach(f=>f.style.width=f.dataset.pct+'%');
-  }));
-
-  if(firstPaint){ if(mi>=1){fireworks(mi); toast(`You're at ${mile.name} — $${balance} earned`);} }
-  else if(changed){
-    if(prevMi!=null && mi>prevMi){fireworks(mi); toast(`New tier reached — ${mile.name}`);}
-    else toast(`Your balance just updated`);
-  }
-  prevMi=mi; firstPaint=false;
+  if(!firstPaint && changed) toast(`Your balance just updated`);
+  firstPaint=false;
 }
 
 /* band-step strip showing where this month's spend sits */
