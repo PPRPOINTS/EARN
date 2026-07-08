@@ -231,6 +231,20 @@
   @keyframes spin{to{transform:rotate(360deg)}}
   .state h2{font-weight:800;font-size:24px;color:var(--cream);letter-spacing:-0.02em}
   .state p{font-size:13.5px;color:var(--dim);max-width:330px;line-height:1.6}
+  /* progress rings — credit (next tier) + referrals (next milestone) */
+  .ring-wrap{position:relative;flex:0 0 auto}
+  .ring{width:100%;height:100%;transform:rotate(-90deg);display:block}
+  .ring-track{fill:none;stroke:rgba(0,0,0,.42);stroke-width:8}
+  .ring-fill{fill:none;stroke-width:8;stroke-linecap:round;
+    filter:drop-shadow(0 0 5px var(--glow));
+    transition:stroke-dashoffset 1.5s cubic-bezier(.22,1,.36,1)}
+  .ring-center{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1}
+  .ring-count{font-size:28px;font-weight:800;color:var(--gold-bright);text-shadow:0 0 20px var(--glow)}
+  .ring-amt{font-size:21px;font-weight:800;color:var(--cream);letter-spacing:-0.02em}
+  .ring-amt em{font-size:.58em;vertical-align:super;color:var(--gold);font-style:normal;font-weight:700;margin-right:1px}
+  .ring-amt.locked{color:var(--green)}
+  .ring-tick{font-size:27px;font-weight:800;color:var(--green)}
+
   .hide{display:none!important}
 </style>
 </head>
@@ -294,6 +308,34 @@ const $ = id => document.getElementById(id);
 function getRef(){return (new URLSearchParams(location.search).get('ref')||'').trim();}
 function earnFor(s){return s>=500?40:s>=300?25:s>=100?10:0;}
 
+/* progress ring — pct 0..1 fills toward the next threshold; inner is centered HTML */
+function ringSVG(pct, inner, size){
+  size = size || 74;
+  const r = 44, C = 2 * Math.PI * r;
+  const p = Math.max(0, Math.min(1, pct));
+  const off = (C * (1 - p)).toFixed(2);
+  const gid = 'rg' + Math.random().toString(36).slice(2, 7);
+  return `<div class="ring-wrap" style="width:${size}px;height:${size}px">
+    <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
+      <defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="var(--gold-deep)"/><stop offset="1" stop-color="var(--gold-bright)"/>
+      </linearGradient></defs>
+      <circle class="ring-track" cx="50" cy="50" r="${r}"/>
+      <circle class="ring-fill" cx="50" cy="50" r="${r}" stroke="url(#${gid})"
+        style="stroke-dasharray:${C.toFixed(2)};stroke-dashoffset:${off}" data-off="${off}" data-c="${C.toFixed(2)}"/>
+    </svg>
+    <div class="ring-center">${inner}</div>
+  </div>`;
+}
+/* replay the fill sweep when data changed; otherwise just sit at final */
+function animateRings(go){
+  document.querySelectorAll('.ring-fill').forEach(function(el){
+    const off = el.getAttribute('data-off'), C = el.getAttribute('data-c');
+    if(go){ el.style.strokeDashoffset = C; el.getBoundingClientRect(); el.style.strokeDashoffset = off; }
+    else { el.style.strokeDashoffset = off; }
+  });
+}
+
 let firstPaint=true, lastSnap=null;
 
 function showError(t,m){
@@ -322,6 +364,14 @@ function paint(c){
   const earned=earnFor(monthSpend);
   const locked = earned>0;
 
+  // credit ring — fills toward the next monthly tier ($100 -> $300 -> $500)
+  let nextTier=null; [100,300,500].some(function(t){ if(monthSpend<t){nextTier=t; return true;} return false; });
+  const monthPct = nextTier ? monthSpend/nextTier : 1;
+  const monthCenter = !nextTier
+    ? '<span class="ring-tick">✓</span>'
+    : `<span class="ring-amt${locked?' locked':''}"><em>$</em>${monthSpend}</span>`;
+  const monthRing = ringSVG(monthPct, monthCenter, 74);
+
   const snap=JSON.stringify([c.name,balance,available,used,streak,monthSpend]);
   const changed=snap!==lastSnap; lastSnap=snap;
   if(firstPaint){$('loadingState').classList.add('hide');$('errorState').classList.add('hide');$('main').classList.remove('hide');}
@@ -339,7 +389,7 @@ function paint(c){
         <div class="month-h">This month</div>
         <div class="month-body">
           <div class="month-locked">
-            <div class="ml-tick">✓</div>
+            ${monthRing}
             <div class="ml-txt">
               <div class="ml-big">You've locked in <b>$${earned} credit</b> this month</div>
               <div class="ml-sub">It gets added to your balance. ${upMsg}</div>
@@ -355,7 +405,7 @@ function paint(c){
         <div class="month-h">This month</div>
         <div class="month-body">
           <div class="month-locked">
-            <div class="ml-tick">○</div>
+            ${monthRing}
             <div class="ml-txt">
               <div class="ml-big">Spend <b>$${toGo} more</b> this month to lock in $10 credit</div>
               <div class="ml-sub">Reach $100 in a month and the credit is yours — added straight to your balance.</div>
@@ -388,6 +438,9 @@ function paint(c){
   // referrals panel
   renderRefs(c);
 
+  // sweep both rings on first load / when data moved
+  animateRings(firstPaint || changed);
+
   if(!firstPaint && changed) toast(`Your balance just updated`);
   firstPaint=false;
 }
@@ -407,6 +460,12 @@ function renderRefs(c){
   const names = Array.isArray(c.referralNames)?c.referralNames:[];
   const isNat = String(c.name||'').trim().toLowerCase()==='nat';
 
+  // referral ring — fills toward the next milestone (2 -> 3 -> 4 for standard, 3 for Nat)
+  const milestones = isNat ? [3] : [2,3,4];
+  let nextM=null; milestones.some(function(m){ if(count<m){nextM=m; return true;} return false; });
+  const refPct = nextM ? count/nextM : 1;
+  const refRing = ringSVG(refPct, `<span class="ring-count">${count}</span>`, 72);
+
   const chips = names.length
     ? `<div class="refs-list">${names.map(n=>`<span class="refchip">${esc(n)}</span>`).join('')}</div>`
     : '';
@@ -414,7 +473,7 @@ function renderRefs(c){
   const head = `
     <div class="refs-divider"><span>A separate reward</span></div>
     <div class="refs-top">
-      <div class="refs-num">${count}</div>
+      ${refRing}
       <div class="refs-info">
         <h3>${count===0?'Refer a friend' : `You've referred ${count} ${count===1?'friend':'friends'}`}</h3>
         <p>This is separate from your store credit above. It's a reward for friends you send our way who place an order.</p>
