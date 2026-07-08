@@ -245,6 +245,11 @@
   .ring-amt.locked{color:var(--green)}
   .ring-tick{font-size:27px;font-weight:800;color:var(--green)}
 
+  .refs-vials{margin-top:16px;position:relative;display:inline-flex;align-items:center;gap:8px;
+    padding:9px 15px;border-radius:100px;font-size:13px;color:var(--cream);font-weight:600;
+    background:rgba(156,207,143,.1);border:1px solid rgba(156,207,143,.35)}
+  .refs-vials b{color:var(--green);font-weight:800;font-size:15px}
+
   .hide{display:none!important}
 </style>
 </head>
@@ -456,18 +461,33 @@ function bandSteps(spend){
 }
 
 function renderRefs(c){
-  const count = +c.referralCount||0;
+  const count = +c.referralCount||0;                          // lifetime referrals
   const names = Array.isArray(c.referralNames)?c.referralNames:[];
   const isNat = String(c.name||'').trim().toLowerCase()==='nat';
+  const vialsGot = +c.freeVialCount||0;                       // free vials redeemed so far
 
-  // referral ring — fills toward the next milestone (2 -> 3 -> 4 for standard, 3 for Nat)
+  // Free vial is a REPEATABLE reward. Every T referrals earns one; redeeming it
+  // resets the cycle so they can earn another. T = 3 for Nat, 4 for everyone else.
+  const T = isNat ? 3 : 4;
+  const cycleRefs   = Math.max(0, count - vialsGot*T);        // referrals since last vial — this is what resets
+  const earnedVials = Math.floor(count / T);                  // vials the referrals entitle them to
+  const pending     = Math.max(0, earnedVials - vialsGot);    // earned but not yet redeemed
+
+  // ring fills toward the next milestone in the current cycle; full + gift icon when a vial is waiting
   const milestones = isNat ? [3] : [2,3,4];
-  let nextM=null; milestones.some(function(m){ if(count<m){nextM=m; return true;} return false; });
-  const refPct = nextM ? count/nextM : 1;
-  const refRing = ringSVG(refPct, `<span class="ring-count">${count}</span>`, 72);
+  let nextM=null; milestones.some(function(m){ if(cycleRefs<m){nextM=m; return true;} return false; });
+  const refPct   = (pending>0 || nextM===null) ? 1 : (cycleRefs/nextM);
+  const ringInner = pending>0
+    ? '<span class="ring-tick">🎁</span>'
+    : `<span class="ring-count">${cycleRefs}</span>`;
+  const refRing = ringSVG(refPct, ringInner, 72);
 
   const chips = names.length
     ? `<div class="refs-list">${names.map(n=>`<span class="refchip">${esc(n)}</span>`).join('')}</div>`
+    : '';
+
+  const vialBadge = vialsGot>0
+    ? `<div class="refs-vials">🎁 <b>${vialsGot}</b> free vial${vialsGot===1?'':'s'} earned so far</div>`
     : '';
 
   const head = `
@@ -479,12 +499,13 @@ function renderRefs(c){
         <p>This is separate from your store credit above. It's a reward for friends you send our way who place an order.</p>
       </div>
     </div>
+    ${vialBadge}
     ${chips}`;
 
   let body;
 
   if(isNat){
-    const hit = count>=3;
+    const hit = cycleRefs>=3 || pending>0;
     body = `
       <div class="ladder">
         <div class="ladder-h">Your referral reward</div>
@@ -494,22 +515,17 @@ function renderRefs(c){
           <span class="rung-state">${hit?'✓':''}</span>
         </div>
       </div>
-      ${hit
-        ? (c.freeVialUsed
-            ? `<div class="refs-earned">✅ Your free vial has been <b>redeemed</b> — enjoy! Refer more friends any time.</div>`
-            : `<div class="refs-earned">🎁 You've earned <b>a free vial of your choice</b> — message us to pick it.</div>`)
-        : `<div class="refs-next">Refer <b>${3-count} more</b> ${3-count===1?'friend':'friends'} who order to get a <b>free vial of your choice</b>.</div>`}`;
+      ${pending>0
+        ? `<div class="refs-earned">🎁 You've earned <b>${pending>1?pending+' free vials':'a free vial'} of your choice</b> — message us to redeem${pending>1?' them':' it'}.</div>`
+        : `<div class="refs-next">Refer <b>${3-cycleRefs} more</b> ${3-cycleRefs===1?'friend':'friends'} who order to earn <b>your ${vialsGot>0?'next ':''}free vial</b>.</div>`}`;
   } else {
     const LADDER = [
       {n:2, label:"$30 store credit"},
       {n:3, label:"$50 store credit"},
       {n:4, label:"a free vial (up to $140)"},
     ];
-    let earned=null; for(let i=0;i<LADDER.length;i++){ if(count>=LADDER[i].n) earned=LADDER[i]; }
-    let next=null;   for(let i=0;i<LADDER.length;i++){ if(count<LADDER[i].n){ next=LADDER[i]; break; } }
-
     const rows = LADDER.map(r=>{
-      const hit=count>=r.n;
+      const hit = (r.n===4) ? (pending>0) : (cycleRefs>=r.n);
       return `<div class="rung ${hit?'hit':''}">
         <span class="rung-n">${r.n}</span>
         <span class="rung-lbl">Refer <b>${r.n} friends</b> who order → <b>${r.label}</b></span>
@@ -518,18 +534,17 @@ function renderRefs(c){
     }).join('');
 
     let reward='';
-    if(earned){
-      if(earned.n>=4 && c.freeVialUsed){
-        reward += `<div class="refs-earned">✅ Your free vial has been <b>redeemed</b> — enjoy!</div>`;
-      } else {
-        reward += `<div class="refs-earned">🎁 You've earned <b>${earned.label}</b> — message us to redeem it on your next order.</div>`;
+    if(pending>0){
+      reward += `<div class="refs-earned">🎁 You've earned <b>${pending>1?pending+' free vials':'a free vial'}</b> — message us to redeem${pending>1?' them':' it'}.</div>`;
+    } else {
+      let creditEarned=null;
+      if(cycleRefs>=3) creditEarned="$50 store credit";
+      else if(cycleRefs>=2) creditEarned="$30 store credit";
+      if(creditEarned){
+        reward += `<div class="refs-earned">🎁 You've earned <b>${creditEarned}</b> — message us to redeem it on your next order.</div>`;
       }
-    }
-    if(next){
-      const need=next.n-count;
-      reward += `<div class="refs-next">Refer <b>${need} more</b> ${need===1?'friend':'friends'} who order${need===1?'s':''} to unlock <b>${next.label}</b>.</div>`;
-    } else if(earned){
-      reward += `<div class="refs-next">You've reached the top referral reward — nice work.</div>`;
+      const need = 4-cycleRefs;
+      reward += `<div class="refs-next">Refer <b>${need} more</b> ${need===1?'friend':'friends'} who order${need===1?'s':''} to unlock <b>a free vial${vialsGot>0?' (your next)':''}</b>.</div>`;
     }
 
     body = `<div class="ladder"><div class="ladder-h">Referral rewards</div>${rows}</div>${reward}`;
