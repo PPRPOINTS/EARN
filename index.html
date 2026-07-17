@@ -551,11 +551,14 @@ function renderRefs(c){
   const count = +c.referralCount||0;                          // lifetime referrals
   const names = Array.isArray(c.referralNames)?c.referralNames:[];
   const isNat = String(c.name||'').trim().toLowerCase()==='nat';
-  const vialsGot = +c.freeVialCount||0;                       // free vials redeemed so far
+  // Only count vials their referrals could actually have earned. The sheet's "Free Vial?"
+  // flag also covers goodwill freebies, and those must not eat someone's referral cycle.
+  const rawVials = +c.freeVialCount||0;
 
   // Free vial is a REPEATABLE reward. Every T referrals earns one; redeeming it
   // resets the cycle so they can earn another. T = 3 for Nat, 4 for everyone else.
   const T = isNat ? 3 : 4;
+  const vialsGot = Math.min(rawVials, Math.floor(count / T));
   const cycleRefs   = Math.max(0, count - vialsGot*T);        // referrals since last vial — this is what resets
   const earnedVials = Math.floor(count / T);                  // vials the referrals entitle them to
   const pending     = Math.max(0, earnedVials - vialsGot);    // earned but not yet redeemed
