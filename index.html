@@ -100,6 +100,9 @@
   .mstep.on .v{color:var(--gold-bright)}
   .mstep.passed{opacity:.5}
 
+  .capnote{margin-top:9px;display:inline-block;padding:7px 13px;border-radius:100px;font-size:11.5px;line-height:1.4;
+    color:var(--gold);background:rgba(216,169,79,.09);border:1px solid rgba(216,169,79,.3)}
+  .capnote-quiet{color:var(--dim);background:transparent;border-color:var(--line)}
   /* balance line */
   .heroline{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);
     font-size:13px;color:var(--dim);line-height:1.55;position:relative;text-align:center}
@@ -165,6 +168,18 @@
   .pt p{font-size:11.5px;color:var(--dim);line-height:1.5}
   .finepr{margin-top:18px;font-size:11px;color:var(--faint);line-height:1.6;text-align:center;padding-bottom:14px}
 
+  .terms{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  .terms summary{list-style:none;cursor:pointer;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-size:13px;font-weight:700;color:var(--cream);user-select:none}
+  .terms summary::-webkit-details-marker{display:none}
+  .terms summary:hover{color:var(--gold-bright)}
+  .terms-chev{color:var(--gold);font-size:12px;transition:transform .25s ease}
+  .terms[open] .terms-chev{transform:rotate(180deg)}
+  .terms-body{padding:0 22px 20px;border-top:1px solid var(--line);margin-top:-1px;padding-top:16px}
+  .terms-body h4{font-size:12px;font-weight:700;color:var(--gold-bright);margin:16px 0 7px;letter-spacing:.02em}
+  .terms-body h4:first-child{margin-top:0}
+  .terms-body ul{margin:0;padding-left:17px}
+  .terms-body li{font-size:11.5px;color:var(--dim);line-height:1.65;margin-bottom:5px}
   .foot{text-align:center;margin-top:32px;font-size:11px;color:var(--faint);line-height:1.7}
   .foot .fl{font-size:11px;letter-spacing:.26em;color:var(--gold);text-transform:uppercase;font-weight:700}
 
@@ -293,12 +308,51 @@
     <div class="earn"><div class="chip">$40</div><div class="txt">Spend <b>$500+</b> in a month</div></div>
     <div class="points">
       <div class="pt"><div class="i">📅</div><h4>Counted monthly</h4><p>Based on your total spend across the whole month, not per order. Two $60 orders in one month = $120 = $10 credit.</p></div>
-      <div class="pt"><div class="i">📈</div><h4>It stacks</h4><p>Each month's credit adds on top of what you already have. No cap, and it never resets.</p></div>
-      <div class="pt"><div class="i">⏳</div><h4>It waits</h4><p>Skip a month and your balance stays exactly where it is. Nothing is lost.</p></div>
-      <div class="pt"><div class="i">💳</div><h4>Spend it</h4><p>Use your credit like cash on any future order, whenever you're ready.</p></div>
+      <div class="pt"><div class="i">📈</div><h4>It stacks</h4><p>Each month's credit adds on top of what you already have, up to a $200 balance.</p></div>
+      <div class="pt"><div class="i">⏳</div><h4>It waits</h4><p>Skip a month and your balance stays exactly where it is. No expiry, nothing is lost.</p></div>
+      <div class="pt"><div class="i">💳</div><h4>Spend it</h4><p>Use it alongside your next order — up to $100 off any one order.</p></div>
     </div>
-    <div class="finepr">Credit is our thank-you for repeat business. Long-unused balances may carry an expiry — we'll always give fair notice.</div>
+    <div class="finepr">Credit is our thank-you for repeat business. Full terms are below.</div>
   </div>
+
+  <details class="terms">
+    <summary><span>Rewards &amp; Referrals — Terms</span><span class="terms-chev">▾</span></summary>
+    <div class="terms-body">
+      <h4>Earning credit</h4>
+      <ul>
+        <li>Credit is based on what you spend in a calendar month: $100–$299 earns $10, $300–$499 earns $25, $500 or more earns $40.</li>
+        <li>Only completed, paid orders count.</li>
+        <li>Postage doesn't count toward your monthly total.</li>
+      </ul>
+      <h4>Referrals</h4>
+      <ul>
+        <li>A referral counts once the person you referred places their first paid order.</li>
+        <li>2 referrals earns $30 credit, 3 earns $50, and 4 earns a free vial of your choice up to $140.</li>
+        <li>Once you claim a free vial your referral count restarts, so you can work toward the next one.</li>
+        <li>Referrals must be genuine new customers.</li>
+      </ul>
+      <h4>Using your credit</h4>
+      <ul>
+        <li>Credit is used alongside another purchase. It can't cover an order in full on its own.</li>
+        <li>Maximum $100 credit per order.</li>
+        <li>Credit can't be used on postage.</li>
+        <li>Your balance caps at $200. Once you're at $200 you won't earn more credit until you've used some.</li>
+        <li>Credit has no cash value. It can't be transferred, sold, or refunded.</li>
+      </ul>
+      <h4>Free vials</h4>
+      <ul>
+        <li>Sent with your next paid order.</li>
+        <li>Choice of product depends on what's in stock at the time.</li>
+        <li>The $140 limit applies to the normal retail price.</li>
+      </ul>
+      <h4>General</h4>
+      <ul>
+        <li>Rewards are worked out from our records.</li>
+        <li>We can change or withdraw these rewards at any time.</li>
+        <li>Rewards are for the account holder only.</li>
+      </ul>
+    </div>
+  </details>
 
   <div class="foot">
     <div class="fl">Proactive Peptides Research</div>
@@ -360,14 +414,20 @@ async function load(count){
   }catch(e){}
 }
 
+const CREDIT_CAP=200;   // balance ceiling — matches the terms
+const PER_ORDER_CAP=100; // most credit usable on any one order
+
 function paint(c){
   const balance=+c.balance||0;                 // banked / earned — drives tiers & progress
   const used=+c.creditUsed||0;
-  const available=(c.creditAvailable!=null)?Math.max(0,+c.creditAvailable||0):Math.max(0,balance-used); // spendable
+  const rawAvail=(c.creditAvailable!=null)?Math.max(0,+c.creditAvailable||0):Math.max(0,balance-used);
+  const available=Math.min(CREDIT_CAP,rawAvail); // spendable, held at the cap
+  const atCap=rawAvail>=CREDIT_CAP;
   const monthSpend=+c.monthSpend||0;
   const streak=+c.streak||0;
   const earned=earnFor(monthSpend);
-  const locked = earned>0;
+  // At the cap they stop accruing, so don't promise credit they won't actually get
+  const locked = earned>0 && !atCap;
 
   // credit ring — fills toward the next monthly tier ($100 -> $300 -> $500)
   let nextTier=null; [100,300,500].some(function(t){ if(monthSpend<t){nextTier=t; return true;} return false; });
@@ -383,7 +443,22 @@ function paint(c){
 
   /* THIS MONTH block — crystal clear about locking in credit */
   let monthBlock;
-  if(locked){
+  if(atCap){
+    monthBlock=`
+      <div class="month">
+        <div class="month-h">This month</div>
+        <div class="month-body">
+          <div class="month-locked">
+            ${monthRing}
+            <div class="ml-txt">
+              <div class="ml-big">You're at the <b>$${CREDIT_CAP} cap</b></div>
+              <div class="ml-sub">Your balance is full, so credit pauses here. Use some on your next order and you'll start earning again straight away — nothing is lost.</div>
+            </div>
+          </div>
+          ${bandSteps(monthSpend)}
+        </div>
+      </div>`;
+  } else if(locked){
     // figure if they can still jump a band this month
     let upMsg='';
     if(monthSpend<300){ upMsg=`Spend $${300-monthSpend} more this month to lift it to $25.`; }
@@ -427,6 +502,8 @@ function paint(c){
       <div class="lbl">Store credit · available to spend</div>
       <div class="amt"><span class="dollar">$</span><span id="amtNum">0</span></div>
       <div class="pts">${used>0?`<b>$${balance}</b> earned all-time · <b>$${used}</b> spent`:`<b>${available}</b> point${available===1?'':'s'} · 1 point = $1 credit`}</div>
+      ${atCap?`<div class="capnote">You're at the $${CREDIT_CAP} cap — use some on your next order to start earning again.</div>`:''}
+      ${available>0?`<div class="capnote capnote-quiet">Up to $${PER_ORDER_CAP} of credit per order. Just let us know when you're ordering.</div>`:''}
       ${used>0?`<div style="font-size:11px;color:var(--dim);margin-top:8px;line-height:1.45">That $${balance} is everything you've earned. Spending your credit doesn't change it.</div>`:''}
     </div>
     ${monthBlock}
