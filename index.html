@@ -100,6 +100,8 @@
   .mstep.on .v{color:var(--gold-bright)}
   .mstep.passed{opacity:.5}
 
+  .lookedafter{margin-top:9px;font-size:11px;color:var(--dim);line-height:1.45}
+  .lookedafter b{color:var(--gold-dim);font-weight:700}
   .capnote{margin-top:9px;display:inline-block;padding:7px 13px;border-radius:100px;font-size:11.5px;line-height:1.4;
     color:var(--gold);background:rgba(216,169,79,.09);border:1px solid rgba(216,169,79,.3)}
   .capnote-quiet{color:var(--dim);background:transparent;border-color:var(--line)}
@@ -424,6 +426,17 @@ function displayName(name){
   if(parts.length===1)return parts[0];
   return parts[0]+" "+parts[parts.length-1].charAt(0).toUpperCase();
 }
+// Quiet nod to anything we've thrown in on top of credit — freebies and discounts.
+// Deliberately understated: one line, no icon parade, easy to miss if you're not looking.
+function lookedAfterLine(c){
+  const la=c.lookedAfter||{};
+  const f=+la.freebies||0, d=Math.round((+la.discount||0)*100)/100;
+  if(!f && !d) return "";
+  const bits=[];
+  if(f) bits.push("<b>"+f+"</b> freebie"+(f===1?"":"s"));
+  if(d) bits.push("<b>$"+(d%1===0?d:d.toFixed(2))+"</b> off");
+  return '<div class="lookedafter">Plus '+bits.join(" and ")+' along the way, on the house.</div>';
+}
 const CREDIT_CAP=200;   // balance ceiling — matches the terms
 const PER_ORDER_CAP=100; // most credit usable on any one order
 
@@ -515,6 +528,7 @@ function paint(c){
       ${atCap?`<div class="capnote">You're at the $${CREDIT_CAP} cap — use some on your next order to start earning again.</div>`:''}
       ${available>0?`<div class="capnote capnote-quiet">Up to $${PER_ORDER_CAP} of credit per order. Just let us know when you're ordering.</div>`:''}
       ${used>0?`<div style="font-size:11px;color:var(--dim);margin-top:8px;line-height:1.45">That $${balance} is everything you've earned. Spending your credit doesn't change it.</div>`:''}
+      ${lookedAfterLine(c)}
     </div>
     ${monthBlock}
     ${streak>0?`<div class="streakwrap"><span class="streakpill">🔥 <b>${streak}</b>-month streak</span></div>`:''}
