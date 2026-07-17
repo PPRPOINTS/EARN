@@ -414,6 +414,16 @@ async function load(count){
   }catch(e){}
 }
 
+// Display name only: first name + last initial. Drops everything from the first "(",
+// which also kills nested tags like "Melanie (referral Katie (Referral Monique))".
+// Never used as a lookup key — the full sheet name still drives ?ref= and the backend.
+function displayName(name){
+  const base=String(name||"").split("(")[0].replace(/\s+/g," ").trim();
+  if(!base)return String(name||"").trim();
+  const parts=base.split(" ").filter(Boolean);
+  if(parts.length===1)return parts[0];
+  return parts[0]+" "+parts[parts.length-1].charAt(0).toUpperCase();
+}
 const CREDIT_CAP=200;   // balance ceiling — matches the terms
 const PER_ORDER_CAP=100; // most credit usable on any one order
 
@@ -497,7 +507,7 @@ function paint(c){
   }
 
   $('hero').innerHTML=`
-    <div class="hname">${esc(c.name)}</div>
+    <div class="hname">${esc(displayName(c.name))}</div>
     <div class="credit">
       <div class="lbl">Store credit · available to spend</div>
       <div class="amt"><span class="dollar">$</span><span id="amtNum">0</span></div>
@@ -560,7 +570,7 @@ function renderRefs(c){
   const refRing = ringSVG(refPct, ringInner, 72);
 
   const chips = names.length
-    ? `<div class="refs-list">${names.map(n=>`<span class="refchip">${esc(n)}</span>`).join('')}</div>`
+    ? `<div class="refs-list">${names.map(n=>`<span class="refchip">${esc(displayName(n))}</span>`).join('')}</div>`
     : '';
 
   const vialBadge = vialsGot>0
