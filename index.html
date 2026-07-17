@@ -426,8 +426,8 @@ function displayName(name){
   if(parts.length===1)return parts[0];
   return parts[0]+" "+parts[parts.length-1].charAt(0).toUpperCase();
 }
-// Quiet nod to anything we've thrown in on top of credit — freebies and discounts.
-// Deliberately understated: one line, no icon parade, easy to miss if you're not looking.
+// Quiet nod to what we've already given on top of credit — freebies and discounts.
+// Past tense on purpose: it's a record of what they've had, not an offer of what's coming.
 function lookedAfterLine(c){
   const la=c.lookedAfter||{};
   const f=+la.freebies||0, d=Math.round((+la.discount||0)*100)/100;
@@ -435,7 +435,7 @@ function lookedAfterLine(c){
   const bits=[];
   if(f) bits.push("<b>"+f+"</b> freebie"+(f===1?"":"s"));
   if(d) bits.push("<b>$"+(d%1===0?d:d.toFixed(2))+"</b> off");
-  return '<div class="lookedafter">Plus '+bits.join(" and ")+' along the way, on the house.</div>';
+  return '<div class="lookedafter">You\'ve already received '+bits.join(" and ")+' on the house as a loyal customer.</div>';
 }
 const CREDIT_CAP=200;   // balance ceiling — matches the terms
 const PER_ORDER_CAP=100; // most credit usable on any one order
