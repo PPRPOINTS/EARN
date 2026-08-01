@@ -412,16 +412,46 @@ function showError(t,m){
   $('errorState').classList.remove('hide');
   if(t)$('errTitle').textContent=t; if(m)$('errMsg').textContent=m;
 }
+// Per-customer cache. The EARN page is opened first-party on the customer's own phone, so
+// localStorage works here (unlike the HUB inside the Wix iframe). Paint the last-known
+// rewards instantly on a repeat open, then refresh in the background - no more staring at
+// the spinner for ~6s every time.
+const EARN_CACHE_PREFIX="peps_earn_cache_";
+function earnCacheKey(rp){return EARN_CACHE_PREFIX+rp.kind+"_"+rp.val;}
+function earnCacheLoad(rp){try{const c=JSON.parse(localStorage.getItem(earnCacheKey(rp))||"null");if(c&&c.client){paint(c.client);return true;}}catch(e){}return false;}
+function earnCacheSave(rp,client){try{localStorage.setItem(earnCacheKey(rp),JSON.stringify({at:Date.now(),client}));}catch(e){}}
+
 async function load(count){
   const rp=getRefParam();
   if(!rp.val){showError("No link detected","This page needs your personal link. Reach out and we'll send yours.");return;}
   if(ENDPOINT.indexOf('__ENDPOINT')===0){showError("Almost there","The rewards feed isn't connected yet.");return;}
+
+  // First open: show cached rewards immediately if we have them, so the fetch happens behind
+  // an already-populated page instead of a blank spinner.
+  if(firstPaint) earnCacheLoad(rp);
+
+  const painted=()=>!$('main').classList.contains('hide');   // is anything on screen yet?
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),15000);            // never hang forever on a stalled endpoint
   try{
     const u=ENDPOINT+(ENDPOINT.indexOf('?')>=0?'&':'?')+rp.kind+'='+encodeURIComponent(rp.val)+'&t='+Date.now()+(count?'&count=1':'');
-    const r=await fetch(u);const d=await r.json();
-    if(!d.ok||d.mode!=='one'||!d.client)return;
+    const r=await fetch(u,{signal:ctrl.signal});
+    const d=await r.json();
+    clearTimeout(timer);
+    if(!d.ok||d.mode!=='one'||!d.client){
+      // Backend answered but didn't find them (e.g. link mistyped, or backend not updated
+      // for this link style). Don't spin forever - say so, unless a cached page is showing.
+      if(!painted()) showError("We couldn't load your rewards","Make sure your link is complete and hasn't been cut off. If it still won't open, reach out and we'll send a fresh one.");
+      return;
+    }
+    earnCacheSave(rp,d.client);
     paint(d.client);
-  }catch(e){}
+  }catch(e){
+    clearTimeout(timer);
+    // Network drop, timeout, or a non-JSON response. Only surface an error if nothing is on
+    // screen; a failed background poll must never wipe a page that's already showing.
+    if(!painted()) showError("Having trouble loading","Check your connection and give it another moment - your rewards are safe.");
+  }
 }
 
 // Display name only: first name + last initial. Drops everything from the first "(",
