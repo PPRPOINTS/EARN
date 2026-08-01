@@ -366,7 +366,15 @@ const ENDPOINT = "https://script.google.com/macros/s/AKfycby6GS7W7o7sFKceSUAxrYW
 const POLL_MS = 25000;
 
 const $ = id => document.getElementById(id);
-function getRef(){return (new URLSearchParams(location.search).get('ref')||'').trim();}
+// New links use ?c=<opaque code>; old links use ?ref=<name>. Read whichever is present and
+// tell the backend which one it is, so both keep working. The code reveals nothing, so a
+// customer sharing their link (or someone snooping the URL) can't get at anyone else.
+function getRefParam(){
+  const q=new URLSearchParams(location.search);
+  const c=(q.get('c')||'').trim();
+  if(c)return {kind:'c', val:c};
+  return {kind:'ref', val:(q.get('ref')||'').trim()};
+}
 function earnFor(s){return s>=500?40:s>=300?25:s>=100?10:0;}
 
 /* progress ring — pct 0..1 fills toward the next threshold; inner is centered HTML */
@@ -405,11 +413,11 @@ function showError(t,m){
   if(t)$('errTitle').textContent=t; if(m)$('errMsg').textContent=m;
 }
 async function load(count){
-  const ref=getRef();
-  if(!ref){showError("No link detected","This page needs your personal link. Reach out and we'll send yours.");return;}
+  const rp=getRefParam();
+  if(!rp.val){showError("No link detected","This page needs your personal link. Reach out and we'll send yours.");return;}
   if(ENDPOINT.indexOf('__ENDPOINT')===0){showError("Almost there","The rewards feed isn't connected yet.");return;}
   try{
-    const u=ENDPOINT+(ENDPOINT.indexOf('?')>=0?'&':'?')+'ref='+encodeURIComponent(ref)+'&t='+Date.now()+(count?'&count=1':'');
+    const u=ENDPOINT+(ENDPOINT.indexOf('?')>=0?'&':'?')+rp.kind+'='+encodeURIComponent(rp.val)+'&t='+Date.now()+(count?'&count=1':'');
     const r=await fetch(u);const d=await r.json();
     if(!d.ok||d.mode!=='one'||!d.client)return;
     paint(d.client);
@@ -419,12 +427,12 @@ async function load(count){
 // Display name only: first name + last initial. Drops everything from the first "(",
 // which also kills nested tags like "Melanie (referral Katie (Referral Monique))".
 // Never used as a lookup key — the full sheet name still drives ?ref= and the backend.
+// Display name: FIRST NAME ONLY. Drops the referral chain (everything from the first "(")
+// and drops the surname/last-initial too - the customer just sees "Riley", never a full name.
 function displayName(name){
   const base=String(name||"").split("(")[0].replace(/\s+/g," ").trim();
   if(!base)return String(name||"").trim();
-  const parts=base.split(" ").filter(Boolean);
-  if(parts.length===1)return parts[0];
-  return parts[0]+" "+parts[parts.length-1].charAt(0).toUpperCase();
+  return base.split(" ").filter(Boolean)[0]||base;
 }
 // Quiet nod to what we've already given on top of credit — freebies and discounts.
 // Past tense on purpose: it's a record of what they've had, not an offer of what's coming.
