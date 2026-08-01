@@ -366,13 +366,15 @@ const ENDPOINT = "https://script.google.com/macros/s/AKfycby6GS7W7o7sFKceSUAxrYW
 const POLL_MS = 25000;
 
 const $ = id => document.getElementById(id);
-// New links use ?c=<opaque code>; old links use ?ref=<name>. Read whichever is present and
+// New links use ?k=<opaque code>; old links use ?ref=<name>. Read whichever is present and
 // tell the backend which one it is, so both keep working. The code reveals nothing, so a
 // customer sharing their link (or someone snooping the URL) can't get at anyone else.
 function getRefParam(){
   const q=new URLSearchParams(location.search);
-  const c=(q.get('c')||'').trim();
-  if(c)return {kind:'c', val:c};
+  // Use ?k= for the opaque code. NOT ?c= - Google reserves single-letter 'c' on Apps Script
+  // web-app URLs and blocks the request before the script runs ("unable to open the file").
+  const k=(q.get('k')||'').trim();
+  if(k)return {kind:'k', val:k};
   return {kind:'ref', val:(q.get('ref')||'').trim()};
 }
 function earnFor(s){return s>=500?40:s>=300?25:s>=100?10:0;}
