@@ -434,25 +434,28 @@ async function load(count){
 
   const painted=()=>!$('main').classList.contains('hide');   // is anything on screen yet?
   const ctrl=new AbortController();
-  const timer=setTimeout(()=>ctrl.abort(),15000);            // never hang forever on a stalled endpoint
+  const timer=setTimeout(()=>ctrl.abort(),30000);            // Apps Script cold-starts can take 20-30s; don't kill a slow-but-working request early
   try{
     const u=ENDPOINT+(ENDPOINT.indexOf('?')>=0?'&':'?')+rp.kind+'='+encodeURIComponent(rp.val)+'&t='+Date.now()+(count?'&count=1':'');
     const r=await fetch(u,{signal:ctrl.signal});
     const d=await r.json();
     clearTimeout(timer);
     if(!d.ok||d.mode!=='one'||!d.client){
-      // Backend answered but didn't find them (e.g. link mistyped, or backend not updated
-      // for this link style). Don't spin forever - say so, unless a cached page is showing.
-      if(!painted()) showError("We couldn't load your rewards","Make sure your link is complete and hasn't been cut off. If it still won't open, reach out and we'll send a fresh one.");
-      return;
+      // Backend answered but didn't find them (link mistyped or cut off). Only surface an
+      // error once the quick boot retries are done - and never if a cached page is showing.
+      if(!painted() && bootDone) showError("We couldn't load your rewards","Make sure your link is complete and hasn't been cut off. If it still won't open, reach out and we'll send a fresh one.");
+      return false;
     }
     earnCacheSave(rp,d.client);
     paint(d.client);
+    return true;
   }catch(e){
     clearTimeout(timer);
-    // Network drop, timeout, or a non-JSON response. Only surface an error if nothing is on
-    // screen; a failed background poll must never wipe a page that's already showing.
-    if(!painted()) showError("Having trouble loading","Check your connection and give it another moment - your rewards are safe.");
+    // Network drop, timeout, or non-JSON. The endpoint is often just cold on first hit, so
+    // during boot we stay on the spinner and let the quick retries handle it; only show an
+    // error once those are exhausted and nothing's on screen.
+    if(!painted() && bootDone) showError("Having trouble loading","Check your connection and give it another moment - your rewards are safe.");
+    return false;
   }
 }
 
@@ -754,7 +757,19 @@ for(let i=0;i<22;i++){const e=document.createElement('div');e.className='ember';
   e.style.animationDuration=(10+Math.random()*12)+'s';e.style.animationDelay=(-Math.random()*20)+'s';
   e.style.opacity=String(0.22+Math.random()*0.38);ew.appendChild(e);}
 
-load(true);
+// Boot: the endpoint is often cold on the first hit of the day and can take 20-30s or fail
+// outright. Instead of erroring and then waiting a full 25s poll (which is how a first load
+// used to take minutes), retry quickly with a short backoff until the page paints. Once it's
+// up, the normal 25s poll keeps it fresh.
+let bootDone=false, bootTries=0;
+function scheduleBoot(){
+  load(true).then(ok=>{
+    if(ok||!firstPaint){bootDone=true;return;}          // painted - we're done booting
+    if(bootTries<6){bootTries++;setTimeout(scheduleBoot, 2500+bootTries*1500);}  // 4s,5.5s,7s,8.5s,10s,11.5s
+    else{bootDone=true;load(true);}                      // give up quick retries; this last try may show the error
+  });
+}
+scheduleBoot();
 setInterval(()=>load(false),POLL_MS);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)load(false);});
 </script>
