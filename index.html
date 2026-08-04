@@ -268,6 +268,35 @@
   .refs-vials b{color:var(--green);font-weight:800;font-size:15px}
 
   .hide{display:none!important}
+  /* Top-spender badge */
+  .rankbadge{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:5px 13px;border-radius:100px;
+    font-size:12px;font-weight:800;letter-spacing:.01em;color:#1a1206;
+    background:linear-gradient(135deg,var(--gold-bright),var(--gold-deep));
+    border:1px solid rgba(255,255,255,.28);box-shadow:0 2px 12px rgba(231,193,120,.35);
+    animation:badgeGlow 2.6s ease-in-out infinite}
+  .rankbadge.top1{background:linear-gradient(135deg,#ffe9a8,#f3d28a,#c89a4e)}
+  @keyframes badgeGlow{0%,100%{box-shadow:0 2px 10px rgba(231,193,120,.3)}50%{box-shadow:0 3px 22px rgba(243,210,138,.65)}}
+
+  /* Pulsing glow to showcase available extras (credit / free vial) */
+  .glow-pulse{animation:glowPulse 1.9s ease-in-out infinite}
+  @keyframes glowPulse{
+    0%,100%{filter:drop-shadow(0 0 3px rgba(243,210,138,.3));text-shadow:0 0 8px rgba(243,210,138,.2)}
+    50%{filter:drop-shadow(0 0 15px rgba(243,210,138,.85));text-shadow:0 0 24px rgba(243,210,138,.7)}
+  }
+  .glow-box{animation:glowBox 2s ease-in-out infinite}
+  @keyframes glowBox{
+    0%,100%{box-shadow:inset 0 0 0 1px var(--line2),0 0 10px rgba(243,210,138,.18)}
+    50%{box-shadow:inset 0 0 0 1px var(--gold),0 0 24px rgba(243,210,138,.55)}
+  }
+
+  /* Streamers that fall when something new lands */
+  #celebrate{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
+  .streamer{position:absolute;top:-40px;border-radius:2px;opacity:.95;will-change:transform}
+  @keyframes streamerFall{
+    0%{transform:translateY(-40px) rotate(0deg);opacity:0}
+    10%{opacity:1}
+    100%{transform:translateY(110vh) rotate(540deg);opacity:.85}
+  }
 </style>
 </head>
 <body>
@@ -483,6 +512,61 @@ function lookedAfterLine(c){
 const CREDIT_CAP=200;   // balance ceiling — matches the terms
 const PER_ORDER_CAP=100; // most credit usable on any one order
 
+// A little badge for top spenders, so they feel looked after. Tiers by rank.
+function rankBadge(rank){
+  if(!rank||rank>50) return '';
+  var label, cls='';
+  if(rank===1){label='👑 #1 Top Spender'; cls='top1';}
+  else if(rank<=3){label='🏆 Top 3 Spender';}
+  else if(rank<=5){label='🥈 Top 5 Spender';}
+  else if(rank<=10){label='⭐ Top 10 Spender';}
+  else {label='✨ Top 50 Spender';}
+  return '<div class="rankbadge '+cls+'">'+label+'</div>';
+}
+
+// Free vials earned but not yet redeemed (same formula the referral panel uses).
+function vialPending(c){
+  var count=+c.referralCount||0;
+  var isNat=String(c.name||'').trim().toLowerCase()==='nat';
+  var rawVials=+c.freeVialCount||0;
+  var T=isNat?3:4;
+  var vialsGot=Math.min(rawVials, Math.floor(count/T));
+  var earnedVials=Math.floor(count/T);
+  return Math.max(0, earnedVials - vialsGot);
+}
+
+// Streamers falling down the page — a small celebration when something new lands.
+function celebrate(){
+  var host=document.getElementById('celebrate');
+  if(!host){host=document.createElement('div');host.id='celebrate';document.body.appendChild(host);}
+  host.innerHTML='';
+  var colors=['#f3d28a','#e7c178','#c89a4e','#f4ece0','#d9a441','#ffe9a8'];
+  for(var i=0;i<46;i++){
+    var s=document.createElement('div');
+    s.className='streamer';
+    var dur=(2.4+Math.random()*1.9).toFixed(2), delay=(Math.random()*0.55).toFixed(2);
+    s.style.left=(Math.random()*100)+'vw';
+    s.style.background=colors[i%colors.length];
+    s.style.width=(6+Math.random()*6).toFixed(1)+'px';
+    s.style.height=(16+Math.random()*16).toFixed(1)+'px';
+    s.style.animation='streamerFall '+dur+'s linear '+delay+'s forwards';
+    host.appendChild(s);
+  }
+  setTimeout(function(){ if(host) host.innerHTML=''; }, 6500);
+}
+
+// Fire streamers only when they've GAINED credit or a new free vial since their last visit
+// on this device (so it feels like a reward, not confetti on every single open).
+function maybeCelebrate(available, pend){
+  try{
+    var rp=getRefParam();
+    var key='peps_earn_seen_'+rp.kind+'_'+rp.val;
+    var prev=JSON.parse(localStorage.getItem(key)||'null') || {avail:0,pend:0};
+    if(available>prev.avail || pend>prev.pend) celebrate();
+    localStorage.setItem(key, JSON.stringify({avail:available, pend:pend}));
+  }catch(e){}
+}
+
 function paint(c){
   const balance=+c.balance||0;                 // banked / earned — drives tiers & progress
   const used=+c.creditUsed||0;
@@ -564,9 +648,10 @@ function paint(c){
 
   $('hero').innerHTML=`
     <div class="hname">${esc(displayName(c.name))}</div>
+    ${rankBadge(+c.spendRank||0)}
     <div class="credit">
       <div class="lbl">Store credit · available to spend</div>
-      <div class="amt"><span class="dollar">$</span><span id="amtNum">0</span></div>
+      <div class="amt${available>0?' glow-pulse':''}"><span class="dollar">$</span><span id="amtNum">0</span></div>
       <div class="pts">${used>0?`<b>$${balance}</b> earned all-time · <b>$${used}</b> spent`:`<b>${available}</b> point${available===1?'':'s'} · 1 point = $1 credit`}</div>
       ${atCap?`<div class="capnote">You're at the $${CREDIT_CAP} cap — use some on your next order to start earning again.</div>`:''}
       ${available>0?`<div class="capnote capnote-quiet">Up to $${PER_ORDER_CAP} of credit per order. Just let us know when you're ordering.</div>`:''}
@@ -591,6 +676,10 @@ function paint(c){
   animateRings(firstPaint || changed);
 
   if(!firstPaint && changed) toast(`Your balance just updated`);
+
+  // Celebrate genuinely new extras, and store what they've now seen.
+  maybeCelebrate(available, vialPending(c));
+
   firstPaint=false;
 }
 
@@ -663,7 +752,7 @@ function renderRefs(c){
         </div>
       </div>
       ${pending>0
-        ? `<div class="refs-earned">🎁 You've earned <b>${pending>1?pending+' free vials':'a free vial'} of your choice</b> — message us to redeem${pending>1?' them':' it'}.</div>`
+        ? `<div class="refs-earned glow-box">🎁 You've earned <b>${pending>1?pending+' free vials':'a free vial'} of your choice</b> — message us to redeem${pending>1?' them':' it'}.</div>`
         : `<div class="refs-next">Refer <b>${3-cycleRefs} more</b> ${3-cycleRefs===1?'friend':'friends'} who order to earn <b>your ${vialsGot>0?'next ':''}free vial</b>.</div>`}`;
   } else {
     const LADDER = [
@@ -682,13 +771,13 @@ function renderRefs(c){
 
     let reward='';
     if(pending>0){
-      reward += `<div class="refs-earned">🎁 You've earned <b>${pending>1?pending+' free vials':'a free vial'}</b> — message us to redeem${pending>1?' them':' it'}.</div>`;
+      reward += `<div class="refs-earned glow-box">🎁 You've earned <b>${pending>1?pending+' free vials':'a free vial'}</b> — message us to redeem${pending>1?' them':' it'}.</div>`;
     } else {
       let creditEarned=null;
       if(cycleRefs>=3) creditEarned="$50 store credit";
       else if(cycleRefs>=2) creditEarned="$30 store credit";
       if(creditEarned){
-        reward += `<div class="refs-earned">🎁 You've earned <b>${creditEarned}</b> — message us to redeem it on your next order.</div>`;
+        reward += `<div class="refs-earned glow-box">🎁 You've earned <b>${creditEarned}</b> — message us to redeem it on your next order.</div>`;
       }
       const need = 4-cycleRefs;
       reward += `<div class="refs-next">Refer <b>${need} more</b> ${need===1?'friend':'friends'} who order${need===1?'s':''} to unlock <b>a free vial${vialsGot>0?' (your next)':''}</b>.</div>`;
