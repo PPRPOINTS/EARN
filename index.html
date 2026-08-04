@@ -541,10 +541,11 @@ function celebrate(){
   if(!host){host=document.createElement('div');host.id='celebrate';document.body.appendChild(host);}
   host.innerHTML='';
   var colors=['#f3d28a','#e7c178','#c89a4e','#f4ece0','#d9a441','#ffe9a8'];
-  for(var i=0;i<46;i++){
+  for(var i=0;i<64;i++){
     var s=document.createElement('div');
     s.className='streamer';
-    var dur=(2.4+Math.random()*1.9).toFixed(2), delay=(Math.random()*0.55).toFixed(2);
+    // slower fall (5-9s) and a wide stagger (0-4s) so they keep drifting down for a good while
+    var dur=(5+Math.random()*4).toFixed(2), delay=(Math.random()*4).toFixed(2);
     s.style.left=(Math.random()*100)+'vw';
     s.style.background=colors[i%colors.length];
     s.style.width=(6+Math.random()*6).toFixed(1)+'px';
@@ -552,7 +553,7 @@ function celebrate(){
     s.style.animation='streamerFall '+dur+'s linear '+delay+'s forwards';
     host.appendChild(s);
   }
-  setTimeout(function(){ if(host) host.innerHTML=''; }, 6500);
+  setTimeout(function(){ if(host) host.innerHTML=''; }, 14000);
 }
 
 // Fire streamers only when they've GAINED credit or a new free vial since their last visit
