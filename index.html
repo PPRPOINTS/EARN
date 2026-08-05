@@ -324,7 +324,7 @@
   </div>
 
   <h1 class="hh">Your store credit</h1>
-  <p class="sub">Two ways to earn: <b style="color:var(--gold)">store credit</b> from your own orders, and <b style="color:var(--gold)">referral rewards</b> for friends you send our way. Here is where both stand.</p>
+  <p class="sub">One <b style="color:var(--gold)">store credit</b> balance you can spend on any order. You build it up from your own orders, and from <b style="color:var(--gold)">referring friends</b> who buy.</p>
   <div class="live"><span class="dot"></span> Live · updates automatically</div>
 
   <div class="hero" id="hero"></div>
@@ -653,10 +653,9 @@ function paint(c){
     <div class="credit">
       <div class="lbl">Store credit · available to spend</div>
       <div class="amt${available>0?' glow-pulse':''}"><span class="dollar">$</span><span id="amtNum">0</span></div>
-      <div class="pts">${used>0?`<b>$${balance}</b> earned all-time · <b>$${used}</b> spent`:`<b>${available}</b> point${available===1?'':'s'} · 1 point = $1 credit`}</div>
+      <div class="pts">${used>0?`You've earned $${balance} in total and used $${used}`:`1 point = $1 credit · ready when you order`}</div>
       ${atCap?`<div class="capnote">You're at the $${CREDIT_CAP} cap — use some on your next order to start earning again.</div>`:''}
-      ${available>0?`<div class="capnote capnote-quiet">Up to $${PER_ORDER_CAP} of credit per order. Just let us know when you're ordering.</div>`:''}
-      ${used>0?`<div style="font-size:11px;color:var(--dim);margin-top:8px;line-height:1.45">That $${balance} is everything you've earned. Spending your credit doesn't change it.</div>`:''}
+      ${available>0?`<div class="capnote capnote-quiet">Spend up to $${PER_ORDER_CAP} of it per order. Just tell us when you're ordering.</div>`:''}
       ${lookedAfterLine(c)}
     </div>
     ${monthBlock}
