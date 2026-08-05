@@ -728,12 +728,12 @@ function renderRefs(c){
     : '';
 
   const head = `
-    <div class="refs-divider"><span>A separate reward</span></div>
+    <div class="refs-divider"><span>Refer &amp; earn</span></div>
     <div class="refs-top">
       ${refRing}
       <div class="refs-info">
         <h3>${count===0?'Refer a friend' : `You've referred ${count} ${count===1?'friend':'friends'}`}</h3>
-        <p>This is separate from your store credit above. It's a reward for friends you send our way who place an order.</p>
+        <p>A reward for friends you send our way who place an order. Store credit lands in your balance above — refer enough and you'll earn a free vial too.</p>
       </div>
     </div>
     ${vialBadge}
@@ -774,11 +774,12 @@ function renderRefs(c){
     if(pending>0){
       reward += `<div class="refs-earned glow-box">🎁 You've earned <b>${pending>1?pending+' free vials':'a free vial'}</b> — message us to redeem${pending>1?' them':' it'}.</div>`;
     } else {
-      let creditEarned=null;
-      if(cycleRefs>=3) creditEarned="$50 store credit";
-      else if(cycleRefs>=2) creditEarned="$30 store credit";
-      if(creditEarned){
-        reward += `<div class="refs-earned glow-box">🎁 You've earned <b>${creditEarned}</b> — message us to redeem it on your next order.</div>`;
+      // Store-credit tiers ($30/$50) go straight into the store credit balance above. We don't
+      // show a separate "message us to redeem" line for them — that lingered forever because
+      // there was no way to mark it used. The ladder ticks above already show it's been earned,
+      // and the real amount lives in the balance (added when earned, spent via Credit Used).
+      if(cycleRefs>=2){
+        reward += `<div class="refs-next">🎁 Your referral store credit is added to your balance above.</div>`;
       }
       const need = 4-cycleRefs;
       reward += `<div class="refs-next">Refer <b>${need} more</b> ${need===1?'friend':'friends'} who order${need===1?'s':''} to unlock <b>a free vial${vialsGot>0?' (your next)':''}</b>.</div>`;
