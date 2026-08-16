@@ -514,13 +514,15 @@ const PER_ORDER_CAP=100; // most credit usable on any one order
 
 // A little badge for top spenders, so they feel looked after. Tiers by rank.
 function rankBadge(rank){
-  if(!rank||rank>50) return '';
+  if(!rank) return '';
   var label, cls='';
+  // The top handful get the actual placing - that's the bit worth shouting about.
+  // Everyone else gets a nudge rather than a rank, since "Top 50" reads flat.
   if(rank===1){label='👑 #1 Top Spender'; cls='top1';}
   else if(rank<=3){label='🏆 Top 3 Spender';}
   else if(rank<=5){label='🥈 Top 5 Spender';}
   else if(rank<=10){label='⭐ Top 10 Spender';}
-  else {label='✨ Top 50 Spender';}
+  else {label='✨ Keep climbing the board';}
   return '<div class="rankbadge '+cls+'">'+label+'</div>';
 }
 
