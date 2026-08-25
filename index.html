@@ -266,6 +266,11 @@
     padding:9px 15px;border-radius:100px;font-size:13px;color:var(--cream);font-weight:600;
     background:rgba(156,207,143,.1);border:1px solid rgba(156,207,143,.35)}
   .refs-vials b{color:var(--green);font-weight:800;font-size:15px}
+  .breakdown{font-size:11px;color:var(--faint);margin-top:3px;letter-spacing:.2px}
+  .claimed{margin-top:16px;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.22);border-radius:12px;padding:11px 13px}
+  .claimed-h{font-size:12px;font-weight:700;color:var(--green);margin-bottom:7px;letter-spacing:.2px}
+  .claimed-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:13px;padding:3px 0;color:var(--text)}
+  .claimed-when{font-size:11px;color:var(--faint);white-space:nowrap}
 
   .hide{display:none!important}
   /* Top-spender badge */
@@ -655,7 +660,14 @@ function paint(c){
     <div class="credit">
       <div class="lbl">Store credit · available to spend</div>
       <div class="amt${available>0?' glow-pulse':''}"><span class="dollar">$</span><span id="amtNum">0</span></div>
-      <div class="pts">${used>0?`You've earned $${balance} in total and used $${used}`:`1 point = $1 credit · ready when you order`}</div>
+      <div class="pts">${balance>0
+          ? `Earned $${balance} all up${used>0?` &middot; $${used} already used`:` &middot; none used yet`}`
+          : `1 point = $1 credit &middot; ready when you order`}</div>
+      ${balance>0?`<div class="breakdown">${[
+          (+c.spendCredit||0)>0?`$${+c.spendCredit} from your orders`:'',
+          (+c.referralCredit||0)>0?`$${+c.referralCredit} from referrals`:'',
+          (+c.bonusCredit||0)>0?`$${+c.bonusCredit} gifted`:''
+        ].filter(Boolean).join(' &nbsp;+&nbsp; ')}</div>`:''}
       ${atCap?`<div class="capnote">You're at the $${CREDIT_CAP} cap — use some on your next order to start earning again.</div>`:''}
       ${available>0?`<div class="capnote capnote-quiet">Spend up to $${PER_ORDER_CAP} of it per order. Just tell us when you're ordering.</div>`:''}
       ${lookedAfterLine(c)}
@@ -724,8 +736,16 @@ function renderRefs(c){
     ? `<div class="refs-list">${names.map(n=>`<span class="refchip">${esc(displayName(n))}</span>`).join('')}</div>`
     : '';
 
+  // "earned so far" never said whether it had actually been handed over, which left both
+  // sides guessing. List the real orders instead: product and the date it went out.
+  const claims = Array.isArray(c.freeVialClaims) ? c.freeVialClaims : [];
   const vialBadge = vialsGot>0
-    ? `<div class="refs-vials">🎁 <b>${vialsGot}</b> free vial${vialsGot===1?'':'s'} earned so far</div>`
+    ? `<div class="claimed">
+         <div class="claimed-h">✅ Free vials you've received</div>
+         ${claims.length
+            ? claims.map(v=>`<div class="claimed-row"><span>${esc(v.product||'Free vial')}</span><span class="claimed-when">${v.date?('sent '+esc(v.date)):'sent'}</span></div>`).join('')
+            : `<div class="claimed-row"><span>${vialsGot} free vial${vialsGot===1?'':'s'}</span><span class="claimed-when">sent</span></div>`}
+       </div>`
     : '';
 
   const head = `
@@ -733,8 +753,8 @@ function renderRefs(c){
     <div class="refs-top">
       ${refRing}
       <div class="refs-info">
-        <h3>${count===0?'Refer a friend' : `You've referred ${count} ${count===1?'friend':'friends'}`}</h3>
-        <p>A reward for friends you send our way who place an order. Store credit lands in your balance above — refer enough and you'll earn a free vial too.</p>
+        <h3>${count===0?'Refer a friend' : `You've referred ${count} ${count===1?'friend':'friends'}`}${vialsGot>0?` <span style="font-size:12px;font-weight:500;opacity:.75">(all time)</span>`:''}</h3>
+        <p>A reward for friends you send our way who place an order. Two friends earns $30, a third adds another $50, and a fourth earns a free vial. Store credit lands in your balance above.</p>
       </div>
     </div>
     ${vialBadge}
@@ -757,13 +777,23 @@ function renderRefs(c){
         ? `<div class="refs-earned glow-box">🎁 You've earned <b>${pending>1?pending+' free vials':'a free vial'} of your choice</b> — message us to redeem${pending>1?' them':' it'}.</div>`
         : `<div class="refs-next">Refer <b>${3-cycleRefs} more</b> ${3-cycleRefs===1?'friend':'friends'} who order to earn <b>your ${vialsGot>0?'next ':''}free vial</b>.</div>`}`;
   } else {
-    const LADDER = [
-      {n:2, label:"$30 store credit"},
-      {n:3, label:"$50 store credit"},
-      {n:4, label:"a free vial (up to $140)"},
-    ];
+    // Milestones STACK: the 2nd pays $30, the 3rd pays another $50, so three referrals is
+    // $80 all up. Labelled "+$30" / "+another $50" so nobody reads the 3rd rung as replacing
+    // the 2nd - it adds to it.
+    // The vial rung sits at T, which is 3 for Nat and 4 for everyone else. Hardcoding 4 here
+    // showed Nat a rung she could never reach, because her count resets at 3.
+    const LADDER = (T===3)
+      ? [
+          {n:2, label:"+$30 store credit"},
+          {n:3, label:"+another $50 store credit and a free vial (up to $140)"},
+        ]
+      : [
+          {n:2, label:"+$30 store credit"},
+          {n:3, label:"+another $50 store credit"},
+          {n:4, label:"a free vial (up to $140)"},
+        ];
     const rows = LADDER.map(r=>{
-      const hit = (r.n===4) ? (pending>0) : (cycleRefs>=r.n);
+      const hit = (r.n===T) ? (pending>0) : (cycleRefs>=r.n);
       return `<div class="rung ${hit?'hit':''}">
         <span class="rung-n">${r.n}</span>
         <span class="rung-lbl">Refer <b>${r.n} friends</b> who order → <b>${r.label}</b></span>
@@ -780,10 +810,17 @@ function renderRefs(c){
       // there was no way to mark it used. The ladder ticks above already show it's been earned,
       // and the real amount lives in the balance (added when earned, spent via Credit Used).
       if(cycleRefs>=2){
-        reward += `<div class="refs-next">🎁 Your referral store credit is added to your balance above.</div>`;
+        const earnedSoFar = (cycleRefs>=3?80:30);
+        reward += `<div class="refs-next">🎁 That's <b>$${earnedSoFar}</b> referral credit this round, already added to your balance above.</div>`;
       }
-      const need = 4-cycleRefs;
-      reward += `<div class="refs-next">Refer <b>${need} more</b> ${need===1?'friend':'friends'} who order${need===1?'s':''} to unlock <b>a free vial${vialsGot>0?' (your next)':''}</b>.</div>`;
+      const need = T-cycleRefs;
+      // Someone who has already had a vial sees a reset counter, which looks like their old
+      // referrals vanished. Say plainly that the last round is finished and paid, so a fresh
+      // count reads as "round two" rather than "we forgot about you".
+      if(vialsGot>0&&cycleRefs===0){
+        reward += `<div class="refs-next">🎉 Your last <b>${T} referrals</b> earned you a free vial, and that's been sent. Your count starts fresh for the next one, and the credit you earned stays in your balance.</div>`;
+      }
+      reward += `<div class="refs-next">Refer <b>${need} more</b> ${need===1?'friend':'friends'} who order${need===1?'s':''} to earn <b>${vialsGot>0?'another':'a'} free vial</b>.</div>`;
     }
 
     body = `<div class="ladder"><div class="ladder-h">Referral rewards</div>${rows}</div>${reward}`;
