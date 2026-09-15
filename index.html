@@ -455,6 +455,7 @@ function showError(t,m){
 const EARN_CACHE_PREFIX="peps_earn_cache_";
 function earnCacheKey(rp){return EARN_CACHE_PREFIX+rp.kind+"_"+rp.val;}
 function earnCacheLoad(rp){try{const c=JSON.parse(localStorage.getItem(earnCacheKey(rp))||"null");if(c&&c.client){paint(c.client);return true;}}catch(e){}return false;}
+function earnCacheClear(rp){try{localStorage.removeItem(earnCacheKey(rp));}catch(e){}}
 function earnCacheSave(rp,client){try{localStorage.setItem(earnCacheKey(rp),JSON.stringify({at:Date.now(),client}));}catch(e){}}
 
 async function load(count){
@@ -465,6 +466,9 @@ async function load(count){
   // First open: show cached rewards immediately if we have them, so the fetch happens behind
   // an already-populated page instead of a blank spinner.
   if(firstPaint) earnCacheLoad(rp);
+  // An old-style link is one the backend will now refuse, so never let a stale cached
+  // copy sit there looking live. 10 characters = the old code, 16+ = the new key.
+  if(rp.kind==='ref' || /^[a-z0-9]{10}$/i.test(String(rp.val||''))) earnCacheClear(rp);
 
   const painted=()=>!$('main').classList.contains('hide');   // is anything on screen yet?
   const ctrl=new AbortController();
@@ -474,6 +478,14 @@ async function load(count){
     const r=await fetch(u,{signal:ctrl.signal});
     const d=await r.json();
     clearTimeout(timer);
+    /* Their link is from the old system. Say so plainly and kindly rather than
+       letting it look like their rewards have vanished. */
+    if(d && d.error==='old_link'){
+      earnCacheClear(rp);
+      showError("This link has expired",
+        "We have moved everyone onto new, more secure links. Send us a quick message and we'll flick you your new one straight away. Nothing has been lost, all your credit and referrals are still sitting there waiting.");
+      return false;
+    }
     if(!d.ok||d.mode!=='one'||!d.client){
       // Backend answered but didn't find them (link mistyped or cut off). Only surface an
       // error once the quick boot retries are done - and never if a cached page is showing.
