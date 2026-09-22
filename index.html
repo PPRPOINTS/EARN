@@ -506,7 +506,7 @@ async function load(count){
 }
 
 // Display name only: first name + last initial. Drops everything from the first "(",
-// which also kills nested tags like "Melanie (referral Katie (Referral Monique))".
+// which also kills nested tags like "Person A (Referral Person B (Referral Person C))".
 // Never used as a lookup key — the full sheet name still drives ?ref= and the backend.
 // Display name: FIRST NAME ONLY. Drops the referral chain (everything from the first "(")
 // and drops the surname/last-initial too - the customer just sees "Riley", never a full name.
@@ -546,9 +546,8 @@ function rankBadge(rank){
 // Free vials earned but not yet redeemed (same formula the referral panel uses).
 function vialPending(c){
   var count=+c.referralCount||0;
-  var isNat=String(c.name||'').trim().toLowerCase()==='nat';
   var rawVials=+c.freeVialCount||0;
-  var T=isNat?3:4;
+  var T=(+c.refTarget===3)?3:4;   // the rewards script says who is on a 3 referral deal
   var vialsGot=Math.min(rawVials, Math.floor(count/T));
   var earnedVials=Math.floor(count/T);
   return Math.max(0, earnedVials - vialsGot);
@@ -722,21 +721,21 @@ function bandSteps(spend){
 function renderRefs(c){
   const count = +c.referralCount||0;                          // lifetime referrals
   const names = Array.isArray(c.referralNames)?c.referralNames:[];
-  const isNat = String(c.name||'').trim().toLowerCase()==='nat';
+  const threeDeal = (+c.refTarget===3);   // set by the rewards script, no names in this page
   // Only count vials their referrals could actually have earned. The sheet's "Free Vial?"
   // flag also covers goodwill freebies, and those must not eat someone's referral cycle.
   const rawVials = +c.freeVialCount||0;
 
   // Free vial is a REPEATABLE reward. Every T referrals earns one; redeeming it
-  // resets the cycle so they can earn another. T = 3 for Nat, 4 for everyone else.
-  const T = isNat ? 3 : 4;
+  // resets the cycle so they can earn another. T is 3 for anyone on that deal, 4 for everyone else.
+  const T = threeDeal ? 3 : 4;
   const vialsGot = Math.min(rawVials, Math.floor(count / T));
   const cycleRefs   = Math.max(0, count - vialsGot*T);        // referrals since last vial — this is what resets
   const earnedVials = Math.floor(count / T);                  // vials the referrals entitle them to
   const pending     = Math.max(0, earnedVials - vialsGot);    // earned but not yet redeemed
 
   // ring fills toward the next milestone in the current cycle; full + gift icon when a vial is waiting
-  const milestones = isNat ? [3] : [2,3,4];
+  const milestones = threeDeal ? [3] : [2,3,4];
   let nextM=null; milestones.some(function(m){ if(cycleRefs<m){nextM=m; return true;} return false; });
   const refPct   = (pending>0 || nextM===null) ? 1 : (cycleRefs/nextM);
   const ringInner = pending>0
@@ -774,7 +773,7 @@ function renderRefs(c){
 
   let body;
 
-  if(isNat){
+  if(threeDeal){
     const hit = cycleRefs>=3 || pending>0;
     body = `
       <div class="ladder">
@@ -792,8 +791,8 @@ function renderRefs(c){
     // Milestones STACK: the 2nd pays $30, the 3rd pays another $50, so three referrals is
     // $80 all up. Labelled "+$30" / "+another $50" so nobody reads the 3rd rung as replacing
     // the 2nd - it adds to it.
-    // The vial rung sits at T, which is 3 for Nat and 4 for everyone else. Hardcoding 4 here
-    // showed Nat a rung she could never reach, because her count resets at 3.
+    // The vial rung sits at T, which is 3 on the 3 referral deal and 4 for everyone else. Hardcoding
+    // 4 here showed a rung that could never be reached, because that count resets at 3.
     const LADDER = (T===3)
       ? [
           {n:2, label:"+$30 store credit"},
