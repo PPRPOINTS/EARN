@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#15100c">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://script.google.com https://*.googleusercontent.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
 <title>Your Rewards · Proactive Peptides Research</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,12 +25,11 @@
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html{height:100%}
   body{
-    background:#1c1610;            /* warm brown base — fills the whole scroll */
+    background:#1c1610;
     color:var(--text); font-family:'Inter',sans-serif;
     -webkit-font-smoothing:antialiased; overflow-x:hidden; min-height:100vh;
     letter-spacing:-0.01em;
   }
-  /* fixed glow layer so the warm tone never "cuts off" on long pages */
   body::before{
     content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
     background:
@@ -57,7 +59,6 @@
     border:1.5px solid var(--glow);animation:ping 1.9s ease-out infinite}
   @keyframes ping{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.9);opacity:0}}
 
-  /* hero */
   .hero{margin-top:24px;border-radius:22px;padding:26px 24px 24px;position:relative;overflow:hidden;
     background:linear-gradient(160deg,#2a2015,#1b140e);border:1px solid var(--line2);
     box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04)}
@@ -76,7 +77,6 @@
   .credit .pts{font-size:12.5px;color:var(--dim);margin-top:6px;font-weight:500}
   .credit .pts b{color:var(--gold);font-weight:700}
 
-  /* THIS MONTH panel — the key clarity fix */
   .month{margin-top:22px;border-radius:16px;padding:0;overflow:hidden;position:relative;
     border:1px solid var(--line2);background:rgba(0,0,0,.22)}
   .month-h{padding:13px 16px;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;
@@ -89,7 +89,6 @@
   .ml-big{font-size:15px;font-weight:700;color:var(--cream);line-height:1.3}
   .ml-big b{color:var(--green)}
   .ml-sub{font-size:12px;color:var(--dim);margin-top:3px;line-height:1.4}
-  /* not yet locked state */
   .month-open .ml-tick{background:rgba(231,193,120,.1);border-color:var(--line2)}
   .month-open .ml-big b{color:var(--gold)}
   .month-steps{margin-top:14px;display:flex;gap:7px}
@@ -105,7 +104,6 @@
   .capnote{margin-top:9px;display:inline-block;padding:7px 13px;border-radius:100px;font-size:11.5px;line-height:1.4;
     color:var(--gold);background:rgba(216,169,79,.09);border:1px solid rgba(216,169,79,.3)}
   .capnote-quiet{color:var(--dim);background:transparent;border-color:var(--line)}
-  /* balance line */
   .heroline{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);
     font-size:13px;color:var(--dim);line-height:1.55;position:relative;text-align:center}
   .heroline b{color:var(--gold);font-weight:700}
@@ -115,7 +113,6 @@
     background:rgba(231,193,120,.08);border:1px solid var(--line);font-size:12px;color:var(--dim);font-weight:600}
   .streakpill b{color:var(--gold-bright);font-weight:800}
 
-  /* tiers */
   .mhead{text-align:center;margin:40px 0 6px}
   .mhead .e{font-size:9.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--faint);font-weight:700}
   .mhead .t{font-size:22px;font-weight:800;margin-top:6px;color:var(--cream);letter-spacing:-0.02em}
@@ -153,7 +150,6 @@
   .s-done{background:rgba(231,193,120,.18);color:var(--gold-bright)}
   .s-lock{background:rgba(255,255,255,.05);color:var(--faint)}
 
-  /* how */
   .how{margin-top:40px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px 22px 12px}
   .how h3{font-size:20px;font-weight:800;color:var(--cream);text-align:center;letter-spacing:-0.02em}
   .how .lead{font-size:13px;color:var(--dim);margin:9px 0 20px;line-height:1.6;text-align:center}
@@ -186,7 +182,6 @@
   .foot .fl{font-size:11px;letter-spacing:.26em;color:var(--gold);text-transform:uppercase;font-weight:700}
 
 
-  /* referrals */
   .refs{margin-top:30px;border-radius:18px;padding:22px 20px;position:relative;overflow:hidden;
     background:#1f160f;border:1px solid var(--line);
     box-shadow:0 14px 40px rgba(0,0,0,.4)}
@@ -248,7 +243,6 @@
   @keyframes spin{to{transform:rotate(360deg)}}
   .state h2{font-weight:800;font-size:24px;color:var(--cream);letter-spacing:-0.02em}
   .state p{font-size:13.5px;color:var(--dim);max-width:330px;line-height:1.6}
-  /* progress rings — credit (next tier) + referrals (next milestone) */
   .ring-wrap{position:relative;flex:0 0 auto}
   .ring{width:100%;height:100%;transform:rotate(-90deg);display:block}
   .ring-track{fill:none;stroke:rgba(0,0,0,.42);stroke-width:8}
@@ -273,7 +267,6 @@
   .claimed-when{font-size:11px;color:var(--faint);white-space:nowrap}
 
   .hide{display:none!important}
-  /* Top-spender badge */
   .rankbadge{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:5px 13px;border-radius:100px;
     font-size:12px;font-weight:800;letter-spacing:.01em;color:#1a1206;
     background:linear-gradient(135deg,var(--gold-bright),var(--gold-deep));
@@ -282,7 +275,6 @@
   .rankbadge.top1{background:linear-gradient(135deg,#ffe9a8,#f3d28a,#c89a4e)}
   @keyframes badgeGlow{0%,100%{box-shadow:0 2px 10px rgba(231,193,120,.3)}50%{box-shadow:0 3px 22px rgba(243,210,138,.65)}}
 
-  /* Pulsing glow to showcase available extras (credit / free vial) */
   .glow-pulse{animation:glowPulse 1.9s ease-in-out infinite}
   @keyframes glowPulse{
     0%,100%{filter:drop-shadow(0 0 3px rgba(243,210,138,.3));text-shadow:0 0 8px rgba(243,210,138,.2)}
@@ -294,7 +286,6 @@
     50%{box-shadow:inset 0 0 0 1px var(--gold),0 0 24px rgba(243,210,138,.55)}
   }
 
-  /* Streamers that fall when something new lands */
   #celebrate{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
   .streamer{position:absolute;top:-40px;border-radius:2px;opacity:.95;will-change:transform}
   @keyframes streamerFall{
@@ -400,20 +391,14 @@ const ENDPOINT = "https://script.google.com/macros/s/AKfycby6GS7W7o7sFKceSUAxrYW
 const POLL_MS = 25000;
 
 const $ = id => document.getElementById(id);
-// New links use ?k=<opaque code>; old links use ?ref=<name>. Read whichever is present and
-// tell the backend which one it is, so both keep working. The code reveals nothing, so a
-// customer sharing their link (or someone snooping the URL) can't get at anyone else.
 function getRefParam(){
   const q=new URLSearchParams(location.search);
-  // Use ?k= for the opaque code. NOT ?c= - Google reserves single-letter 'c' on Apps Script
-  // web-app URLs and blocks the request before the script runs ("unable to open the file").
   const k=(q.get('k')||'').trim();
   if(k)return {kind:'k', val:k};
   return {kind:'ref', val:(q.get('ref')||'').trim()};
 }
 function earnFor(s){return s>=500?40:s>=300?25:s>=100?10:0;}
 
-/* progress ring — pct 0..1 fills toward the next threshold; inner is centered HTML */
 function ringSVG(pct, inner, size){
   size = size || 74;
   const r = 44, C = 2 * Math.PI * r;
@@ -432,7 +417,6 @@ function ringSVG(pct, inner, size){
     <div class="ring-center">${inner}</div>
   </div>`;
 }
-/* replay the fill sweep when data changed; otherwise just sit at final */
 function animateRings(go){
   document.querySelectorAll('.ring-fill').forEach(function(el){
     const off = el.getAttribute('data-off'), C = el.getAttribute('data-c');
@@ -448,10 +432,6 @@ function showError(t,m){
   $('errorState').classList.remove('hide');
   if(t)$('errTitle').textContent=t; if(m)$('errMsg').textContent=m;
 }
-// Per-customer cache. The EARN page is opened first-party on the customer's own phone, so
-// localStorage works here (unlike the HUB inside the Wix iframe). Paint the last-known
-// rewards instantly on a repeat open, then refresh in the background - no more staring at
-// the spinner for ~6s every time.
 const EARN_CACHE_PREFIX="peps_earn_cache_";
 function earnCacheKey(rp){return EARN_CACHE_PREFIX+rp.kind+"_"+rp.val;}
 function earnCacheLoad(rp){try{const c=JSON.parse(localStorage.getItem(earnCacheKey(rp))||"null");if(c&&c.client){paint(c.client);return true;}}catch(e){}return false;}
@@ -463,23 +443,17 @@ async function load(count){
   if(!rp.val){showError("No link detected","This page needs your personal link. Reach out and we'll send yours.");return;}
   if(ENDPOINT.indexOf('__ENDPOINT')===0){showError("Almost there","The rewards feed isn't connected yet.");return;}
 
-  // First open: show cached rewards immediately if we have them, so the fetch happens behind
-  // an already-populated page instead of a blank spinner.
   if(firstPaint) earnCacheLoad(rp);
-  // An old-style link is one the backend will now refuse, so never let a stale cached
-  // copy sit there looking live. 10 characters = the old code, 16+ = the new key.
   if(rp.kind==='ref' || /^[a-z0-9]{10}$/i.test(String(rp.val||''))) earnCacheClear(rp);
 
-  const painted=()=>!$('main').classList.contains('hide');   // is anything on screen yet?
+  const painted=()=>!$('main').classList.contains('hide');
   const ctrl=new AbortController();
-  const timer=setTimeout(()=>ctrl.abort(),30000);            // Apps Script cold-starts can take 20-30s; don't kill a slow-but-working request early
+  const timer=setTimeout(()=>ctrl.abort(),30000);
   try{
     const u=ENDPOINT+(ENDPOINT.indexOf('?')>=0?'&':'?')+rp.kind+'='+encodeURIComponent(rp.val)+'&t='+Date.now()+(count?'&count=1':'');
     const r=await fetch(u,{signal:ctrl.signal});
     const d=await r.json();
     clearTimeout(timer);
-    /* Their link is from the old system. Say so plainly and kindly rather than
-       letting it look like their rewards have vanished. */
     if(d && d.error==='old_link'){
       earnCacheClear(rp);
       showError("This link has expired",
@@ -487,8 +461,6 @@ async function load(count){
       return false;
     }
     if(!d.ok||d.mode!=='one'||!d.client){
-      // Backend answered but didn't find them (link mistyped or cut off). Only surface an
-      // error once the quick boot retries are done - and never if a cached page is showing.
       if(!painted() && bootDone) showError("We couldn't load your rewards","Make sure your link is complete and hasn't been cut off. If it still won't open, reach out and we'll send a fresh one.");
       return false;
     }
@@ -497,26 +469,16 @@ async function load(count){
     return true;
   }catch(e){
     clearTimeout(timer);
-    // Network drop, timeout, or non-JSON. The endpoint is often just cold on first hit, so
-    // during boot we stay on the spinner and let the quick retries handle it; only show an
-    // error once those are exhausted and nothing's on screen.
     if(!painted() && bootDone) showError("Having trouble loading","Check your connection and give it another moment - your rewards are safe.");
     return false;
   }
 }
 
-// Display name only: first name + last initial. Drops everything from the first "(",
-// which also kills nested tags like "Person A (Referral Person B (Referral Person C))".
-// Never used as a lookup key — the full sheet name still drives ?ref= and the backend.
-// Display name: FIRST NAME ONLY. Drops the referral chain (everything from the first "(")
-// and drops the surname/last-initial too - the customer just sees "Riley", never a full name.
 function displayName(name){
   const base=String(name||"").split("(")[0].replace(/\s+/g," ").trim();
   if(!base)return String(name||"").trim();
   return base.split(" ").filter(Boolean)[0]||base;
 }
-// Quiet nod to what we've already given on top of credit — freebies and discounts.
-// Past tense on purpose: it's a record of what they've had, not an offer of what's coming.
 function lookedAfterLine(c){
   const la=c.lookedAfter||{};
   const f=+la.freebies||0, d=Math.round((+la.discount||0)*100)/100;
@@ -526,15 +488,12 @@ function lookedAfterLine(c){
   if(d) bits.push("<b>$"+(d%1===0?d:d.toFixed(2))+"</b> off");
   return '<div class="lookedafter">You\'ve already received '+bits.join(" and ")+' on the house as a loyal customer.</div>';
 }
-const CREDIT_CAP=200;   // balance ceiling — matches the terms
-const PER_ORDER_CAP=100; // most credit usable on any one order
+const CREDIT_CAP=200;
+const PER_ORDER_CAP=100;
 
-// A little badge for top spenders, so they feel looked after. Tiers by rank.
 function rankBadge(rank){
   if(!rank) return '';
   var label, cls='';
-  // The top handful get the actual placing - that's the bit worth shouting about.
-  // Everyone else gets a nudge rather than a rank, since "Top 50" reads flat.
   if(rank===1){label='👑 #1 Top Spender'; cls='top1';}
   else if(rank<=3){label='🏆 Top 3 Spender';}
   else if(rank<=5){label='🥈 Top 5 Spender';}
@@ -543,17 +502,15 @@ function rankBadge(rank){
   return '<div class="rankbadge '+cls+'">'+label+'</div>';
 }
 
-// Free vials earned but not yet redeemed (same formula the referral panel uses).
 function vialPending(c){
   var count=+c.referralCount||0;
   var rawVials=+c.freeVialCount||0;
-  var T=(+c.refTarget===3)?3:4;   // the rewards script says who is on a 3 referral deal
+  var T=(+c.refTarget===3)?3:4;
   var vialsGot=Math.min(rawVials, Math.floor(count/T));
   var earnedVials=Math.floor(count/T);
   return Math.max(0, earnedVials - vialsGot);
 }
 
-// Streamers falling down the page — a small celebration when something new lands.
 function celebrate(){
   var host=document.getElementById('celebrate');
   if(!host){host=document.createElement('div');host.id='celebrate';document.body.appendChild(host);}
@@ -562,7 +519,6 @@ function celebrate(){
   for(var i=0;i<64;i++){
     var s=document.createElement('div');
     s.className='streamer';
-    // slower fall (5-9s) and a wide stagger (0-4s) so they keep drifting down for a good while
     var dur=(5+Math.random()*4).toFixed(2), delay=(Math.random()*4).toFixed(2);
     s.style.left=(Math.random()*100)+'vw';
     s.style.background=colors[i%colors.length];
@@ -574,8 +530,6 @@ function celebrate(){
   setTimeout(function(){ if(host) host.innerHTML=''; }, 14000);
 }
 
-// Fire streamers only when they've GAINED credit or a new free vial since their last visit
-// on this device (so it feels like a reward, not confetti on every single open).
 function maybeCelebrate(available, pend){
   try{
     var rp=getRefParam();
@@ -587,18 +541,16 @@ function maybeCelebrate(available, pend){
 }
 
 function paint(c){
-  const balance=+c.balance||0;                 // banked / earned — drives tiers & progress
+  const balance=+c.balance||0;
   const used=+c.creditUsed||0;
   const rawAvail=(c.creditAvailable!=null)?Math.max(0,+c.creditAvailable||0):Math.max(0,balance-used);
-  const available=Math.min(CREDIT_CAP,rawAvail); // spendable, held at the cap
+  const available=Math.min(CREDIT_CAP,rawAvail);
   const atCap=rawAvail>=CREDIT_CAP;
   const monthSpend=+c.monthSpend||0;
   const streak=+c.streak||0;
   const earned=earnFor(monthSpend);
-  // At the cap they stop accruing, so don't promise credit they won't actually get
   const locked = earned>0 && !atCap;
 
-  // credit ring — fills toward the next monthly tier ($100 -> $300 -> $500)
   let nextTier=null; [100,300,500].some(function(t){ if(monthSpend<t){nextTier=t; return true;} return false; });
   const monthPct = nextTier ? monthSpend/nextTier : 1;
   const monthCenter = !nextTier
@@ -610,7 +562,6 @@ function paint(c){
   const changed=snap!==lastSnap; lastSnap=snap;
   if(firstPaint){$('loadingState').classList.add('hide');$('errorState').classList.add('hide');$('main').classList.remove('hide');}
 
-  /* THIS MONTH block — crystal clear about locking in credit */
   let monthBlock;
   if(atCap){
     monthBlock=`
@@ -628,7 +579,6 @@ function paint(c){
         </div>
       </div>`;
   } else if(locked){
-    // figure if they can still jump a band this month
     let upMsg='';
     if(monthSpend<300){ upMsg=`Spend $${300-monthSpend} more this month to lift it to $25.`; }
     else if(monthSpend<500){ upMsg=`Spend $${500-monthSpend} more this month to lift it to $40.`; }
@@ -694,21 +644,17 @@ function paint(c){
       n.textContent=Math.round(e*available);if(p<1)requestAnimationFrame(step);else n.textContent=available;})(performance.now());
   } else n.textContent=available;
 
-  // referrals panel
   renderRefs(c);
 
-  // sweep both rings on first load / when data moved
   animateRings(firstPaint || changed);
 
   if(!firstPaint && changed) toast(`Your balance just updated`);
 
-  // Celebrate genuinely new extras, and store what they've now seen.
   maybeCelebrate(available, vialPending(c));
 
   firstPaint=false;
 }
 
-/* band-step strip showing where this month's spend sits */
 function bandSteps(spend){
   const bands=[{l:'$0',v:'$0',min:0},{l:'$100',v:'$10',min:100},{l:'$300',v:'$25',min:300},{l:'$500+',v:'$40',min:500}];
   let cur=0; for(let i=0;i<bands.length;i++){if(spend>=bands[i].min)cur=i;}
@@ -719,22 +665,17 @@ function bandSteps(spend){
 }
 
 function renderRefs(c){
-  const count = +c.referralCount||0;                          // lifetime referrals
+  const count = +c.referralCount||0;
   const names = Array.isArray(c.referralNames)?c.referralNames:[];
-  const threeDeal = (+c.refTarget===3);   // set by the rewards script, no names in this page
-  // Only count vials their referrals could actually have earned. The sheet's "Free Vial?"
-  // flag also covers goodwill freebies, and those must not eat someone's referral cycle.
+  const threeDeal = (+c.refTarget===3);
   const rawVials = +c.freeVialCount||0;
 
-  // Free vial is a REPEATABLE reward. Every T referrals earns one; redeeming it
-  // resets the cycle so they can earn another. T is 3 for anyone on that deal, 4 for everyone else.
   const T = threeDeal ? 3 : 4;
   const vialsGot = Math.min(rawVials, Math.floor(count / T));
-  const cycleRefs   = Math.max(0, count - vialsGot*T);        // referrals since last vial — this is what resets
-  const earnedVials = Math.floor(count / T);                  // vials the referrals entitle them to
-  const pending     = Math.max(0, earnedVials - vialsGot);    // earned but not yet redeemed
+  const cycleRefs   = Math.max(0, count - vialsGot*T);
+  const earnedVials = Math.floor(count / T);
+  const pending     = Math.max(0, earnedVials - vialsGot);
 
-  // ring fills toward the next milestone in the current cycle; full + gift icon when a vial is waiting
   const milestones = threeDeal ? [3] : [2,3,4];
   let nextM=null; milestones.some(function(m){ if(cycleRefs<m){nextM=m; return true;} return false; });
   const refPct   = (pending>0 || nextM===null) ? 1 : (cycleRefs/nextM);
@@ -747,8 +688,6 @@ function renderRefs(c){
     ? `<div class="refs-list">${names.map(n=>`<span class="refchip">${esc(displayName(n))}</span>`).join('')}</div>`
     : '';
 
-  // "earned so far" never said whether it had actually been handed over, which left both
-  // sides guessing. List the real orders instead: product and the date it went out.
   const claims = Array.isArray(c.freeVialClaims) ? c.freeVialClaims : [];
   const vialBadge = vialsGot>0
     ? `<div class="claimed">
@@ -788,11 +727,6 @@ function renderRefs(c){
         ? `<div class="refs-earned glow-box">🎁 You've earned <b>${pending>1?pending+' free vials':'a free vial'} of your choice</b> — message us to redeem${pending>1?' them':' it'}.</div>`
         : `<div class="refs-next">Refer <b>${3-cycleRefs} more</b> ${3-cycleRefs===1?'friend':'friends'} who order to earn <b>your ${vialsGot>0?'next ':''}free vial</b>.</div>`}`;
   } else {
-    // Milestones STACK: the 2nd pays $30, the 3rd pays another $50, so three referrals is
-    // $80 all up. Labelled "+$30" / "+another $50" so nobody reads the 3rd rung as replacing
-    // the 2nd - it adds to it.
-    // The vial rung sits at T, which is 3 on the 3 referral deal and 4 for everyone else. Hardcoding
-    // 4 here showed a rung that could never be reached, because that count resets at 3.
     const LADDER = (T===3)
       ? [
           {n:2, label:"+$30 store credit"},
@@ -816,18 +750,11 @@ function renderRefs(c){
     if(pending>0){
       reward += `<div class="refs-earned glow-box">🎁 You've earned <b>${pending>1?pending+' free vials':'a free vial'}</b> — message us to redeem${pending>1?' them':' it'}.</div>`;
     } else {
-      // Store-credit tiers ($30/$50) go straight into the store credit balance above. We don't
-      // show a separate "message us to redeem" line for them — that lingered forever because
-      // there was no way to mark it used. The ladder ticks above already show it's been earned,
-      // and the real amount lives in the balance (added when earned, spent via Credit Used).
       if(cycleRefs>=2){
         const earnedSoFar = (cycleRefs>=3?80:30);
         reward += `<div class="refs-next">🎁 That's <b>$${earnedSoFar}</b> referral credit this round, already added to your balance above.</div>`;
       }
       const need = T-cycleRefs;
-      // Someone who has already had a vial sees a reset counter, which looks like their old
-      // referrals vanished. Say plainly that the last round is finished and paid, so a fresh
-      // count reads as "round two" rather than "we forgot about you".
       if(vialsGot>0&&cycleRefs===0){
         reward += `<div class="refs-next">🎉 Your last <b>${T} referrals</b> earned you a free vial, and that's been sent. Your count starts fresh for the next one, and the credit you earned stays in your balance.</div>`;
       }
@@ -844,7 +771,6 @@ function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>
 
 let tT;function toast(msg){$('toastText').textContent=msg;$('toast').classList.add('show');clearTimeout(tT);tT=setTimeout(()=>$('toast').classList.remove('show'),3000);}
 
-/* ===== FIREWORKS ===== */
 const cv=$('fx'),cx=cv.getContext('2d');let parts=[],raf=null;
 function sz(){cv.width=innerWidth;cv.height=innerHeight;}sz();addEventListener('resize',sz);
 const GOLDS=['#e7c178','#f3d28a','#c89a4e','#fff4d6','#d8a85a','#ffe7a8','#ffffff'];
@@ -858,7 +784,6 @@ function burst(x,y){
       g:0.05,life:0,max:64+Math.random()*36,c:hue,r:1.5+Math.random()*2,
       trail:[]});
   }
-  // bright flash core
   for(let i=0;i<14;i++){
     const a=Math.random()*6.28, sp=Math.random()*2;
     parts.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:0.04,life:0,max:26,c:'#fff8e0',r:2.4,trail:[]});
@@ -875,7 +800,7 @@ function fireworks(level){
 }
 function loop(){
   cx.globalCompositeOperation='source-over';
-  cx.fillStyle='rgba(21,16,12,0.22)'; // fade trails
+  cx.fillStyle='rgba(21,16,12,0.22)';
   cx.fillRect(0,0,cv.width,cv.height);
   cx.globalCompositeOperation='lighter';
   for(let i=parts.length-1;i>=0;i--){
@@ -897,16 +822,12 @@ for(let i=0;i<22;i++){const e=document.createElement('div');e.className='ember';
   e.style.animationDuration=(10+Math.random()*12)+'s';e.style.animationDelay=(-Math.random()*20)+'s';
   e.style.opacity=String(0.22+Math.random()*0.38);ew.appendChild(e);}
 
-// Boot: the endpoint is often cold on the first hit of the day and can take 20-30s or fail
-// outright. Instead of erroring and then waiting a full 25s poll (which is how a first load
-// used to take minutes), retry quickly with a short backoff until the page paints. Once it's
-// up, the normal 25s poll keeps it fresh.
 let bootDone=false, bootTries=0;
 function scheduleBoot(){
   load(true).then(ok=>{
-    if(ok||!firstPaint){bootDone=true;return;}          // painted - we're done booting
-    if(bootTries<6){bootTries++;setTimeout(scheduleBoot, 2500+bootTries*1500);}  // 4s,5.5s,7s,8.5s,10s,11.5s
-    else{bootDone=true;load(true);}                      // give up quick retries; this last try may show the error
+    if(ok||!firstPaint){bootDone=true;return;}
+    if(bootTries<6){bootTries++;setTimeout(scheduleBoot, 2500+bootTries*1500);}
+    else{bootDone=true;load(true);}
   });
 }
 scheduleBoot();
